@@ -13,8 +13,11 @@ public class Game extends Canvas implements Runnable{
     private Thread thread;
     private boolean running = false;
 
+    private Handler handler;
     public Game(){
         new Window(WIDTH, HEIGHT, "Game", this);
+        handler = new Handler();
+        handler.addObject(new Player(100, 100, ID.Player));
     }
     public synchronized void start(){
         thread = new Thread(this);
@@ -59,7 +62,7 @@ public class Game extends Canvas implements Runnable{
     }
 
     private void tick(){
-
+        handler.tick();
     }
 
     private void render(){
@@ -71,6 +74,7 @@ public class Game extends Canvas implements Runnable{
         Graphics g = bs.getDrawGraphics();
         g.setColor(Color.black);
         g.fillRect(0, 0, WIDTH, HEIGHT);
+        handler.render(g);
         g.dispose();
         bs.show();
     }
