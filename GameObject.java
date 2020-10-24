@@ -34,4 +34,7 @@ public abstract class GameObject{
     public void setMovement(boolean inAnimation){
         this.inAnimation = inAnimation;
     }
+    public boolean getMovement(){
+        return inAnimation;
+    }
 }
