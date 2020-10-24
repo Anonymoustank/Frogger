@@ -12,12 +12,14 @@ public class Game extends Canvas implements Runnable{
     public static int HEIGHT = 720;
     private Thread thread;
     private boolean running = false;
+    Player player;
 
     private Handler handler;
     public Game(){
-        new Window(WIDTH, HEIGHT, "Game", this);
+        player = new Player(400, 400, ID.Player);
+        new Window(WIDTH, HEIGHT, "Game", this, player);
         handler = new Handler();
-        handler.addObject(new Player(100, 100, ID.Player));
+        handler.addObject(player);
     }
     public synchronized void start(){
         thread = new Thread(this);
@@ -54,7 +56,7 @@ public class Game extends Canvas implements Runnable{
             frames++;
             if (System.currentTimeMillis() - timer > 1000){
                 timer += 1000;
-                System.out.println("FPS: " + frames);
+                // System.out.println("FPS: " + frames);
                 frames = 0;
             }
         }
