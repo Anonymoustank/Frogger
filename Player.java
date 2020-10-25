@@ -8,14 +8,13 @@ import javax.swing.*;
 import javax.sound.sampled.*;
 public class Player extends GameObject{
     protected BufferedImage img;
-    protected Image gif_img;
-    protected int moves_remaining = 60;
+    protected int moves_remaining = 48;
+    BufferedImage inputImage;
     public Player(int x, int y, ID id){
         super(x, y, id);
     }
     @Override
     public void tick(){
-
     }
     @Override
     public void render(Graphics g){
@@ -35,15 +34,15 @@ public class Player extends GameObject{
             this.setY(this.getY() - 1);
             this.moves_remaining -= 1;
             try {
-                img = ImageIO.read(new File("frogger/Images/frog" + Integer.toString(this.moves_remaining/10 + 1) + ".png"));
+                img = ImageIO.read(new File("frogger/Images/frog" + Integer.toString(this.moves_remaining/8 + 1) + ".png"));
             }
             catch (Exception e) {
                 e.printStackTrace();
+                System.out.println(Integer.toString(this.moves_remaining/8 + 1));
             }
-            g.drawImage(img, x, y, null);
         }
         else {
-            this.moves_remaining = 60;
+            this.moves_remaining = 48;
             this.setMovement(false);
             try {
                 img = ImageIO.read(new File("frogger/Images/frog1.png"));
@@ -51,7 +50,16 @@ public class Player extends GameObject{
             catch (Exception e){
                 e.printStackTrace();
             }
-            g.drawImage(img, x, y, null);
         }
+        try {
+            inputImage = ImageIO.read(new File("frogger/Images/Road.png"));
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        g.drawImage(inputImage, 360 - 48, 510 - 17, null);
+        g.drawImage(inputImage, 360 - 48, 600 - 17, null);
+        g.drawImage(inputImage, 360 - 48, 420 - 17, null);
+        g.drawImage(img, x, y, null);
     }
 }

@@ -9,7 +9,6 @@ public class Keychecker extends KeyAdapter {
     public void keyTyped(KeyEvent e) {
         // Invoked when a key has been typed.
     }
-
     public void keyPressed(KeyEvent e) {
         // Invoked when a key has been pressed.
         // if (e.getKeyCode() == KeyEvent.VK_ENTER && yourOtherCondition) {

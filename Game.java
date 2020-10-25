@@ -14,16 +14,15 @@ import javax.swing.*;
 import javax.sound.sampled.*;
 
 public class Game extends Canvas implements Runnable{
-    public static int WIDTH = 640;
+    public static int WIDTH = 720;
     public static int HEIGHT = 720;
     private Thread thread;
     private boolean running = false;
     Player player;
-
     private Handler handler;
     public Game(){
-        player = new Player(400, 400, ID.Player);
-        new Window(WIDTH, HEIGHT, "Game", this, player);
+        player = new Player(360 - 24, 600 + 17, ID.Player);
+        Window my_window = new Window(WIDTH, HEIGHT, "Game", this, player);
         handler = new Handler();
         handler.addObject(player);
         File music = new File("frogger/Audio/start.wav");
