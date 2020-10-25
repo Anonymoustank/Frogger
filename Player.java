@@ -21,7 +21,7 @@ public class Player extends GameObject{
     public void render(Graphics g){
         if (getMovement() && this.moves_remaining > 0){
             if (moves_remaining == 60){
-                File music = new File("Frogger/Audio/hop.wav");
+                File music = new File("frogger/Audio/hop.wav");
                 try {
                     AudioInputStream audioInput = AudioSystem.getAudioInputStream(music);
                     Clip clip = AudioSystem.getClip();
@@ -35,7 +35,7 @@ public class Player extends GameObject{
             this.setY(this.getY() - 1);
             this.moves_remaining -= 1;
             try {
-                img = ImageIO.read(new File("Frogger/Images/frog" + Integer.toString(this.moves_remaining/10 + 1) + ".png"));
+                img = ImageIO.read(new File("frogger/Images/frog" + Integer.toString(this.moves_remaining/10 + 1) + ".png"));
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -46,7 +46,7 @@ public class Player extends GameObject{
             this.moves_remaining = 60;
             this.setMovement(false);
             try {
-                img = ImageIO.read(new File("Frogger/Images/frog1.png"));
+                img = ImageIO.read(new File("frogger/Images/frog1.png"));
             }
             catch (Exception e){
                 e.printStackTrace();

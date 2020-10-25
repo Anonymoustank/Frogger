@@ -26,7 +26,7 @@ public class Game extends Canvas implements Runnable{
         new Window(WIDTH, HEIGHT, "Game", this, player);
         handler = new Handler();
         handler.addObject(player);
-        File music = new File("Frogger/Audio/start.wav");
+        File music = new File("frogger/Audio/start.wav");
         try {
             AudioInputStream audioInput = AudioSystem.getAudioInputStream(music);
             Clip clip = AudioSystem.getClip();
