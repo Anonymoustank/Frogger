@@ -5,6 +5,7 @@ import java.awt.image.*;
 import java.io.*;
 import javax.imageio.*;
 import javax.swing.*;
+import javax.sound.sampled.*;
 public class Player extends GameObject{
     protected BufferedImage img;
     protected Image gif_img;
@@ -19,6 +20,18 @@ public class Player extends GameObject{
     @Override
     public void render(Graphics g){
         if (getMovement() && this.moves_remaining > 0){
+            if (moves_remaining == 60){
+                File music = new File("Frogger/Audio/hop.wav");
+                try {
+                    AudioInputStream audioInput = AudioSystem.getAudioInputStream(music);
+                    Clip clip = AudioSystem.getClip();
+                    clip.open(audioInput);
+                    clip.start();
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
             this.setY(this.getY() - 1);
             this.moves_remaining -= 1;
             try {

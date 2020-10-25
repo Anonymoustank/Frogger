@@ -6,6 +6,12 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
+import java.awt.event.*;
+import java.awt.image.*;
+import java.io.*;
+import javax.imageio.*;
+import javax.swing.*;
+import javax.sound.sampled.*;
 
 public class Game extends Canvas implements Runnable{
     public static int WIDTH = 640;
@@ -20,6 +26,16 @@ public class Game extends Canvas implements Runnable{
         new Window(WIDTH, HEIGHT, "Game", this, player);
         handler = new Handler();
         handler.addObject(player);
+        File music = new File("Frogger/Audio/start.wav");
+        try {
+            AudioInputStream audioInput = AudioSystem.getAudioInputStream(music);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInput);
+            clip.start();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
     }
     public synchronized void start(){
         thread = new Thread(this);
