@@ -15,7 +15,9 @@ public class Keychecker extends KeyAdapter {
         //     myMethod();
         // }
         if (e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_UP){
-            player.setMovement(true);
+            if (player.dead == false){
+                player.setMovement(true);
+            }
         }
     }
 

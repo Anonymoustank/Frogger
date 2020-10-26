@@ -24,6 +24,8 @@ public class Game extends Canvas implements Runnable{
         player = new Player(360 - 24, 600 + 17, ID.Player);
         Window my_window = new Window(WIDTH, HEIGHT, "Game", this, player);
         handler = new Handler();
+        handler.addObject(new Road(360 - 48, 600 - 17, ID.Road));
+        handler.addObject(new Road(360 - 48, 508 - 17, ID.Road));
         handler.addObject(player);
         File music = new File("frogger/Audio/start.wav");
         try {
@@ -58,6 +60,13 @@ public class Game extends Canvas implements Runnable{
         long timer = System.currentTimeMillis();
         int frames = 0;
         while (running){
+            if (player.getMovement()){
+                for (GameObject i: handler.object){
+                    if (i != player){
+                        i.setY(i.getY() + 1);
+                    }
+                }
+            }
             long now = System.nanoTime();
             delta += (now - lastTime) / ns;
             lastTime = now;

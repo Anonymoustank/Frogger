@@ -1,5 +1,5 @@
 package frogger;
-
+import java.util.LinkedList;
 import java.awt.Canvas;
 import java.awt.Dimension;
 import javax.swing.JFrame;

@@ -8,8 +8,9 @@ import javax.swing.*;
 import javax.sound.sampled.*;
 public class Player extends GameObject{
     protected BufferedImage img;
-    protected int moves_remaining = 48;
+    protected int moves_remaining = 96;
     BufferedImage inputImage;
+    protected boolean dead = false;
     public Player(int x, int y, ID id){
         super(x, y, id);
     }
@@ -31,10 +32,10 @@ public class Player extends GameObject{
                     e.printStackTrace();
                 }
             }
-            this.setY(this.getY() - 1);
+            // this.setY(this.getY() - 1);
             this.moves_remaining -= 1;
             try {
-                img = ImageIO.read(new File("frogger/Images/frog" + Integer.toString(this.moves_remaining/8 + 1) + ".png"));
+                img = ImageIO.read(new File("frogger/Images/frog" + Integer.toString(this.moves_remaining/16 + 1) + ".png"));
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -42,7 +43,7 @@ public class Player extends GameObject{
             }
         }
         else {
-            this.moves_remaining = 48;
+            this.moves_remaining = 96;
             this.setMovement(false);
             try {
                 img = ImageIO.read(new File("frogger/Images/frog1.png"));
@@ -51,15 +52,15 @@ public class Player extends GameObject{
                 e.printStackTrace();
             }
         }
-        try {
-            inputImage = ImageIO.read(new File("frogger/Images/Road.png"));
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-        g.drawImage(inputImage, 360 - 48, 510 - 17, null);
-        g.drawImage(inputImage, 360 - 48, 600 - 17, null);
-        g.drawImage(inputImage, 360 - 48, 420 - 17, null);
+        // try {
+        //     inputImage = ImageIO.read(new File("frogger/Images/Road.png"));
+        // }
+        // catch (Exception e){
+        //     e.printStackTrace();
+        // }
+        // g.drawImage(inputImage, 360 - 48, 508 - 17, null);
+        // g.drawImage(inputImage, 360 - 48, 600 - 17, null);
+        // g.drawImage(inputImage, 360 - 48, 416 - 17, null);
         g.drawImage(img, x, y, null);
     }
 }
