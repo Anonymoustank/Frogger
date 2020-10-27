@@ -31,6 +31,14 @@ public class Game extends Canvas implements Runnable{
             }
         }
         handler.addObject(player);
+        for (GameObject i: handler.object){
+            if (i != player){
+                i.load_image("frogger/Images/Road.png");
+            }
+            else {
+                i.load_image("frogger/Images/frog1.png");
+            }
+        }
         File music = new File("frogger/Audio/start.wav");
         try {
             AudioInputStream audioInput = AudioSystem.getAudioInputStream(music);

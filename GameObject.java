@@ -1,9 +1,15 @@
 package frogger;
-import java.awt.Graphics;
-public abstract class GameObject{
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.*;
+import java.io.*;
+import javax.imageio.*;
+import javax.swing.*;
+public class GameObject{
     protected int x, y;
     protected ID id;
     protected boolean inAnimation = false;
+    protected BufferedImage inputImage;
 
     public GameObject(int x, int y, ID id){
         this.x = x;
@@ -11,8 +17,20 @@ public abstract class GameObject{
         this.id = id;
     }
 
-    public abstract void tick();
-    public abstract void render(Graphics g);
+    public void load_image(String file_path){
+        try {
+            this.inputImage = ImageIO.read(new File(file_path));
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    public void tick(){
+
+    }
+    public void render(Graphics g){
+
+    }
     public void setX(int x){
         this.x = x;
     }
