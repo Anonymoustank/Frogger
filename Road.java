@@ -17,7 +17,7 @@ public class Road extends GameObject{
     @Override
     public void render(Graphics g){
         try {
-            inputImage = ImageIO.read(new File("frogger/Images/Road.png"));
+            inputImage = ImageIO.read(new File("frogger/Images/Road2.png"));
         }
         catch (Exception e){
             e.printStackTrace();

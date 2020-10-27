@@ -15,17 +15,21 @@ import javax.sound.sampled.*;
 
 public class Game extends Canvas implements Runnable{
     public static int WIDTH = 720;
-    public static int HEIGHT = 720;
+    public static int HEIGHT = 92 * 3 - 46;
     private Thread thread;
     private boolean running = false;
-    Player player;
+    public Player player;
     private Handler handler;
+    public int min_threshold = (92 * 3 - 48) - 17 * 8 + 92;
     public Game(){
-        player = new Player(360 - 24, 600 + 17, ID.Player);
-        Window my_window = new Window(WIDTH, HEIGHT, "Game", this, player);
+        player = new Player(WIDTH/2 - 24, (92 * 3 - 55) - (17 * 6), ID.Player);
+        Window my_window = new Window(WIDTH, HEIGHT, "Frogger", this, player);
         handler = new Handler();
-        handler.addObject(new Road(360 - 48, 600 - 17, ID.Road));
-        handler.addObject(new Road(360 - 48, 508 - 17, ID.Road));
+        for (int i = 0; i < 4; i++){
+            for (int j = 0; j < 5; j++){
+                handler.addObject(new Road(155 * j, (92 * 3 - 50) - 17 * 8 - 92 * i, ID.Road));
+            }
+        }
         handler.addObject(player);
         File music = new File("frogger/Audio/start.wav");
         try {
@@ -64,6 +68,9 @@ public class Game extends Canvas implements Runnable{
                 for (GameObject i: handler.object){
                     if (i != player){
                         i.setY(i.getY() + 1);
+                        if (i.getY() >= min_threshold){
+                            i.setY((92 * 3 - 48) - 17 * 8 - 92 * 3);
+                        }
                     }
                 }
             }
@@ -80,7 +87,7 @@ public class Game extends Canvas implements Runnable{
             frames++;
             if (System.currentTimeMillis() - timer > 1000){
                 timer += 1000;
-                // System.out.println("FPS: " + frames);
+                System.out.println("FPS: " + frames);
                 frames = 0;
             }
         }
