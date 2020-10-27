@@ -15,19 +15,28 @@ import javax.sound.sampled.*;
 
 public class Game extends Canvas implements Runnable{
     public static int WIDTH = 720;
-    public static int HEIGHT = 92 * 3 - 46;
+    public static int my_height = 86;
+    public static int HEIGHT = my_height * 2 + my_height/2;
     private Thread thread;
     private boolean running = false;
     public Player player;
     private Handler handler;
-    public int min_threshold = (92 * 3 - 48) - 17 * 8 + 92;
+    public int min_threshold = (my_height * 3 - my_height/2) - 17 * 8 + my_height;
+    private BufferedImage image;
     public Game(){
-        player = new Player(WIDTH/2 - 24, (92 * 3 - 55) - (17 * 6), ID.Player);
+        player = new Player(WIDTH/2 - 24, (my_height * 3 - my_height/2) - (17 * 6), ID.Player);
         Window my_window = new Window(WIDTH, HEIGHT, "Frogger", this, player);
         handler = new Handler();
+        try {
+            image = ImageIO.read(new File("frogger/Images/Road.png"));
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        System.out.println(image.getHeight());
         for (int i = 0; i < 4; i++){
             for (int j = 0; j < 5; j++){
-                handler.addObject(new Road(155 * j, (92 * 3 - 50) - 17 * 8 - 92 * i, ID.Road));
+                handler.addObject(new Road(155 * j, (my_height * 3 - my_height/2) - 17 * 8 - my_height * i, ID.Road));
             }
         }
         handler.addObject(player);
@@ -75,10 +84,12 @@ public class Game extends Canvas implements Runnable{
             if (player.getMovement()){
                 for (GameObject i: handler.object){
                     if (i != player){
-                        i.setY(i.getY() + 1);
                         if (i.getY() >= min_threshold){
-                            i.setY((92 * 3 - 48) - 17 * 8 - 92 * 3);
+                            i.setY((my_height * 3 - my_height/2) - 17 * 8 - (my_height * 3) - 1);
                         }
+                        else{
+                            i.setY(i.getY() + 1);
+                        }  
                     }
                 }
             }

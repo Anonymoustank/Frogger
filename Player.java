@@ -8,7 +8,8 @@ import javax.swing.*;
 import javax.sound.sampled.*;
 public class Player extends GameObject{
     protected BufferedImage img;
-    protected int moves_remaining = 92;
+    protected int max_int = 86;
+    protected int moves_remaining = max_int;
     protected boolean dead = false;
     public Player(int x, int y, ID id){
         super(x, y, id);
@@ -19,7 +20,7 @@ public class Player extends GameObject{
     @Override
     public void render(Graphics g){
         if (getMovement() && this.moves_remaining > 0){
-            if (moves_remaining == 92){
+            if (this.moves_remaining == max_int){
                 File music = new File("frogger/Audio/hop.wav");
                 try {
                     AudioInputStream audioInput = AudioSystem.getAudioInputStream(music);
@@ -35,7 +36,7 @@ public class Player extends GameObject{
             load_image("frogger/Images/frog" + Integer.toString(this.moves_remaining/16 + 1) + ".png");
         }
         else {
-            this.moves_remaining = 92;
+            this.moves_remaining = max_int;
             this.setMovement(false);
         }
         g.drawImage(inputImage, x, y, null);
