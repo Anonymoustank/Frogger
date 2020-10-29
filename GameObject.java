@@ -5,12 +5,13 @@ import java.awt.image.*;
 import java.io.*;
 import javax.imageio.*;
 import javax.swing.*;
+import java.util.LinkedList;
 public class GameObject{
     protected int x, y;
     protected ID id;
     protected boolean inAnimation = false;
+    protected BufferedImage[] image_array = new BufferedImage[7];
     protected BufferedImage inputImage;
-    protected boolean move = false;
     protected int how_many_moves;
     public GameObject(int x, int y, ID id, int how_many_moves){
         this.x = x;
@@ -18,14 +19,14 @@ public class GameObject{
         this.id = id;
         this.how_many_moves = how_many_moves;
     }
-
-    public void load_image(String file_path){
+    public BufferedImage load_image(String file_path){
         try {
-            this.inputImage = ImageIO.read(new File(file_path));
+            return ImageIO.read(new File(file_path));
         }
         catch (Exception e){
             e.printStackTrace();
         }
+        return null;
     }
     public void tick(){
 

@@ -32,7 +32,7 @@ public class Player extends GameObject{
                     e.printStackTrace();
                 }
             }
-            load_image("frogger/Images/frog" + Integer.toString(this.moves_remaining/15 + 1) + ".png");
+            this.inputImage = this.image_array[this.moves_remaining/15];
         }
         else {
             this.moves_remaining = max_int;
