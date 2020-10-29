@@ -10,11 +10,13 @@ public class GameObject{
     protected ID id;
     protected boolean inAnimation = false;
     protected BufferedImage inputImage;
-
-    public GameObject(int x, int y, ID id){
+    protected boolean move = false;
+    protected int how_many_moves;
+    public GameObject(int x, int y, ID id, int how_many_moves){
         this.x = x;
         this.y = y;
         this.id = id;
+        this.how_many_moves = how_many_moves;
     }
 
     public void load_image(String file_path){

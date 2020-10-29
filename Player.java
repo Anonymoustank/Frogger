@@ -8,11 +8,11 @@ import javax.swing.*;
 import javax.sound.sampled.*;
 public class Player extends GameObject{
     protected BufferedImage img;
-    protected int max_int = 86;
+    protected int max_int = 92;
     protected int moves_remaining = max_int;
     protected boolean dead = false;
     public Player(int x, int y, ID id){
-        super(x, y, id);
+        super(x, y, id, 0);
     }
     @Override
     public void tick(){
@@ -32,8 +32,7 @@ public class Player extends GameObject{
                     e.printStackTrace();
                 }
             }
-            this.moves_remaining -= 1;
-            load_image("frogger/Images/frog" + Integer.toString(this.moves_remaining/16 + 1) + ".png");
+            load_image("frogger/Images/frog" + Integer.toString(this.moves_remaining/15 + 1) + ".png");
         }
         else {
             this.moves_remaining = max_int;

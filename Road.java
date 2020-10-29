@@ -7,8 +7,8 @@ import javax.imageio.*;
 import javax.swing.*;
 import javax.sound.sampled.*;
 public class Road extends GameObject{
-    public Road(int x, int y, ID id){
-        super(x, y, id);
+    public Road(int x, int y, ID id, int how_many_moves){
+        super(x, y, id, how_many_moves);
     }
     @Override
     public void tick(){

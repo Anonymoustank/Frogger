@@ -12,19 +12,21 @@ import java.io.*;
 import javax.imageio.*;
 import javax.swing.*;
 import javax.sound.sampled.*;
+import java.lang.Math;
 
 public class Game extends Canvas implements Runnable{
     public static int WIDTH = 720;
-    public static int my_height = 86;
-    public static int HEIGHT = my_height * 2 + my_height/2;
+    public static int my_height = 92;
+    public static int HEIGHT = 500;
     private Thread thread;
     private boolean running = false;
     public Player player;
     private Handler handler;
-    public int min_threshold = (my_height * 3 - my_height/2) - 17 * 8 + my_height;
-    private BufferedImage image;
+    public int min_threshold = my_height * 2;
+    public BufferedImage image;
+    public boolean can_move = false;
     public Game(){
-        player = new Player(WIDTH/2 - 24, (my_height * 3 - my_height/2) - (17 * 6), ID.Player);
+        player = new Player(WIDTH/2 - 24, 138, ID.Player);
         Window my_window = new Window(WIDTH, HEIGHT, "Frogger", this, player);
         handler = new Handler();
         try {
@@ -33,16 +35,15 @@ public class Game extends Canvas implements Runnable{
         catch (Exception e){
             e.printStackTrace();
         }
-        System.out.println(image.getHeight());
         for (int i = 0; i < 4; i++){
             for (int j = 0; j < 5; j++){
-                handler.addObject(new Road(155 * j, (my_height * 3 - my_height/2) - 17 * 8 - my_height * i, ID.Road));
+                handler.addObject(new Road(155 * j, (-1 * (my_height * 2)) + my_height * i, ID.Road, Math.abs((-1 * (my_height * 2)) + my_height * i  - min_threshold)));
             }
         }
         handler.addObject(player);
         for (GameObject i: handler.object){
             if (i != player){
-                i.load_image("frogger/Images/Road.png");
+                i.load_image("frogger/Images/Road.png"); 
             }
             else {
                 i.load_image("frogger/Images/frog1.png");
@@ -81,17 +82,33 @@ public class Game extends Canvas implements Runnable{
         long timer = System.currentTimeMillis();
         int frames = 0;
         while (running){
+            if (can_move == false && player.getMovement()){
+                can_move = true;
+            }
+            if (can_move && player.getMovement() == false){
+                for (GameObject i: handler.object){
+                    if (i != player){
+                        if (i.getY() == min_threshold && i.how_many_moves == 0){
+                            i.how_many_moves = min_threshold;
+                            i.setY(0);
+                        }
+                    }
+                }
+            }
             if (player.getMovement()){
                 for (GameObject i: handler.object){
                     if (i != player){
-                        if (i.getY() >= min_threshold){
-                            i.setY((my_height * 3 - my_height/2) - 17 * 8 - (my_height * 3) - 1);
+                        if (i.getY() == min_threshold && i.how_many_moves == 0){
+                            i.how_many_moves = min_threshold;
+                            i.setY(0);
                         }
                         else{
                             i.setY(i.getY() + 1);
+                            i.how_many_moves -= 1;
                         }  
                     }
                 }
+                player.moves_remaining -= 1;
             }
             long now = System.nanoTime();
             delta += (now - lastTime) / ns;
@@ -106,7 +123,7 @@ public class Game extends Canvas implements Runnable{
             frames++;
             if (System.currentTimeMillis() - timer > 1000){
                 timer += 1000;
-                System.out.println("FPS: " + frames);
+                // System.out.println("FPS: " + frames);
                 frames = 0;
             }
         }
