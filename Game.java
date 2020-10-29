@@ -17,16 +17,16 @@ import java.lang.Math;
 public class Game extends Canvas implements Runnable{
     public static int WIDTH = 720;
     public static int my_height = 92;
-    public static int HEIGHT = 500;
+    public static int HEIGHT = 503;
     private Thread thread;
     private boolean running = false;
     public Player player;
     private Handler handler;
-    public int min_threshold = my_height * 2;
+    public int min_threshold = my_height * 6;
     public BufferedImage image;
     public boolean can_move = false;
     public Game(){
-        player = new Player(WIDTH/2 - 24, 138, ID.Player);
+        player = new Player(WIDTH/2 - 24, 400, ID.Player);
         Window my_window = new Window(WIDTH, HEIGHT, "Frogger", this, player);
         handler = new Handler();
         try {
@@ -35,7 +35,7 @@ public class Game extends Canvas implements Runnable{
         catch (Exception e){
             e.printStackTrace();
         }
-        for (int i = 0; i < 4; i++){
+        for (int i = 0; i < 7; i++){
             for (int j = 0; j < 5; j++){
                 handler.addObject(new Road(155 * j, (-1 * (my_height * 2)) + my_height * i, ID.Road, Math.abs((-1 * (my_height * 2)) + my_height * i  - min_threshold)));
             }
@@ -123,7 +123,7 @@ public class Game extends Canvas implements Runnable{
             frames++;
             if (System.currentTimeMillis() - timer > 1000){
                 timer += 1000;
-                // System.out.println("FPS: " + frames);
+                System.out.println("FPS: " + frames);
                 frames = 0;
             }
         }
