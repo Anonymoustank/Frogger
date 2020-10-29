@@ -99,6 +99,18 @@ public class Game extends Canvas implements Runnable{
                 }
             }
             if (player.getMovement()){
+                if (player.moves_remaining == my_height){
+                    File music = new File("frogger/Audio/hop.wav");
+                    try {
+                        AudioInputStream audioInput = AudioSystem.getAudioInputStream(music);
+                        Clip clip = AudioSystem.getClip();
+                        clip.open(audioInput);
+                        clip.start();
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
                 for (GameObject i: handler.object){
                     if (i != player){
                         if (i.getY() == min_threshold && i.how_many_moves == 0){

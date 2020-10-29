@@ -20,18 +20,6 @@ public class Player extends GameObject{
     @Override
     public void render(Graphics g){
         if (getMovement() && this.moves_remaining > 0){
-            if (this.moves_remaining == max_int){
-                File music = new File("frogger/Audio/hop.wav");
-                try {
-                    AudioInputStream audioInput = AudioSystem.getAudioInputStream(music);
-                    Clip clip = AudioSystem.getClip();
-                    clip.open(audioInput);
-                    clip.start();
-                }
-                catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
             this.inputImage = this.image_array[this.moves_remaining/15];
         }
         else {
