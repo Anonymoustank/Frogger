@@ -11,6 +11,8 @@ public class GameObject{
     protected ID id;
     protected boolean inAnimation = false;
     protected BufferedImage[] image_array = new BufferedImage[7];
+    protected BufferedImage[] left_image_array = new BufferedImage[7];
+    protected BufferedImage[] right_image_array = new BufferedImage[7];
     protected BufferedImage inputImage;
     protected int how_many_moves;
     public GameObject(int x, int y, ID id, int how_many_moves){

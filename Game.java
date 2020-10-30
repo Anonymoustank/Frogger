@@ -1,6 +1,7 @@
 package frogger;
 
 import java.awt.Canvas;
+import java.awt.geom.AffineTransform;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -50,6 +51,8 @@ public class Game extends Canvas implements Runnable{
             else {
                 for (int j = 1; j < 8; j++){
                     player.image_array[j - 1] = player.load_image("frogger/Images/frog" + Integer.toString(j) + ".png");
+                    player.left_image_array[j - 1] = player.load_image("frogger/Images/left_frog" + Integer.toString(j) + ".png");
+                    player.right_image_array[j - 1] = player.load_image("frogger/Images/right_frog" + Integer.toString(j) + ".png");
                 }
                 i.inputImage = i.image_array[0];
             }
@@ -121,12 +124,26 @@ public class Game extends Canvas implements Runnable{
                             i.setY(0);
                         }
                         else{
-                            i.setY(i.getY() + 1);
-                            i.how_many_moves -= 1;
+                            if (player.degrees == 0){
+                                i.setY(i.getY() + 1);
+                                i.how_many_moves -= 1;
+                            }
                         }  
                     }
                 }
-                player.moves_remaining -= 1;
+                if (player.degrees == 0){
+                    player.moves_remaining -= 1;
+                }
+            }
+            if (player.getMovement()){
+                if (player.degrees == 270){
+                    player.setX(player.getX() - 1);
+                    player.moves_remaining -= 1;
+                }
+                else if (player.degrees == 90){
+                    player.setX(player.getX() + 1);
+                    player.moves_remaining -= 1;
+                }
             }
             long now = System.nanoTime();
             delta += (now - lastTime) / ns;
@@ -141,7 +158,7 @@ public class Game extends Canvas implements Runnable{
             frames++;
             if (System.currentTimeMillis() - timer > 1000){
                 timer += 1000;
-                // System.out.println("FPS: " + frames);
+                System.out.println("FPS: " + frames);
                 frames = 0;
             }
         }
