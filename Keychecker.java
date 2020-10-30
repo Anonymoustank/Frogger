@@ -10,10 +10,6 @@ public class Keychecker extends KeyAdapter {
         // Invoked when a key has been typed.
     }
     public void keyPressed(KeyEvent e) {
-        // Invoked when a key has been pressed.
-        // if (e.getKeyCode() == KeyEvent.VK_ENTER && yourOtherCondition) {
-        //     myMethod();
-        // }
         if (e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_UP){
             if (player.dead == false){
                 player.setMovement(true);

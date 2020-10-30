@@ -24,7 +24,9 @@ public class Game extends Canvas implements Runnable{
     private Handler handler;
     public int min_threshold = my_height * 6;
     public BufferedImage image;
+    public Clip clip;
     public boolean can_move = false;
+    public AudioInputStream audioInput;
     public Game(){
         player = new Player(WIDTH/2 - 24, 400, ID.Player);
         Window my_window = new Window(WIDTH, HEIGHT, "Frogger", this, player);
@@ -54,8 +56,8 @@ public class Game extends Canvas implements Runnable{
         }
         File music = new File("frogger/Audio/start.wav");
         try {
-            AudioInputStream audioInput = AudioSystem.getAudioInputStream(music);
-            Clip clip = AudioSystem.getClip();
+            audioInput = AudioSystem.getAudioInputStream(music);
+            clip = AudioSystem.getClip();
             clip.open(audioInput);
             clip.start();
         }
@@ -100,10 +102,11 @@ public class Game extends Canvas implements Runnable{
             }
             if (player.getMovement()){
                 if (player.moves_remaining == my_height){
+                    clip.stop();
                     File music = new File("frogger/Audio/hop.wav");
                     try {
-                        AudioInputStream audioInput = AudioSystem.getAudioInputStream(music);
-                        Clip clip = AudioSystem.getClip();
+                        audioInput = AudioSystem.getAudioInputStream(music);
+                        clip = AudioSystem.getClip();
                         clip.open(audioInput);
                         clip.start();
                     }
@@ -138,7 +141,7 @@ public class Game extends Canvas implements Runnable{
             frames++;
             if (System.currentTimeMillis() - timer > 1000){
                 timer += 1000;
-                System.out.println("FPS: " + frames);
+                // System.out.println("FPS: " + frames);
                 frames = 0;
             }
         }

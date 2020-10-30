@@ -11,16 +11,14 @@ public class Player extends GameObject{
     protected int max_int = 92;
     protected int moves_remaining = max_int;
     protected boolean dead = false;
+    protected int number_to_divide = max_int/6;
     public Player(int x, int y, ID id){
         super(x, y, id, 0);
     }
     @Override
-    public void tick(){
-    }
-    @Override
     public void render(Graphics g){
         if (getMovement() && this.moves_remaining > 0){
-            this.inputImage = this.image_array[this.moves_remaining/15];
+            this.inputImage = this.image_array[this.moves_remaining/number_to_divide];
         }
         else {
             this.moves_remaining = max_int;

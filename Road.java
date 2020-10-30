@@ -11,9 +11,6 @@ public class Road extends GameObject{
         super(x, y, id, how_many_moves);
     }
     @Override
-    public void tick(){
-    }
-    @Override
     public void render(Graphics g){
         g.drawImage(inputImage, x, y, null);
     }
