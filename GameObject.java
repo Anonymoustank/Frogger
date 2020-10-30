@@ -21,15 +21,6 @@ public class GameObject{
         this.id = id;
         this.how_many_moves = how_many_moves;
     }
-    public BufferedImage load_image(String file_path){
-        try {
-            return ImageIO.read(new File(file_path));
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-        return null;
-    }
     public void tick(){
 
     }

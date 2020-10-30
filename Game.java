@@ -1,7 +1,6 @@
 package frogger;
 
 import java.awt.Canvas;
-import java.awt.geom.AffineTransform;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -46,13 +45,18 @@ public class Game extends Canvas implements Runnable{
         handler.addObject(player);
         for (GameObject i: handler.object){
             if (i != player){
-                i.inputImage = i.load_image("frogger/Images/Road.png"); 
+                i.inputImage = image; 
             }
             else {
                 for (int j = 1; j < 8; j++){
-                    player.image_array[j - 1] = player.load_image("frogger/Images/frog" + Integer.toString(j) + ".png");
-                    player.left_image_array[j - 1] = player.load_image("frogger/Images/left_frog" + Integer.toString(j) + ".png");
-                    player.right_image_array[j - 1] = player.load_image("frogger/Images/right_frog" + Integer.toString(j) + ".png");
+                    try {
+                        player.image_array[j - 1] = ImageIO.read(new File("frogger/Images/frog" + Integer.toString(j) + ".png"));
+                        player.left_image_array[j - 1] = ImageIO.read(new File("frogger/Images/left_frog" + Integer.toString(j) + ".png"));
+                        player.right_image_array[j - 1] = ImageIO.read(new File("frogger/Images/right_frog" + Integer.toString(j) + ".png"));
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                    }
                 }
                 i.inputImage = i.image_array[0];
             }

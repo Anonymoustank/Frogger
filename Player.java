@@ -1,6 +1,5 @@
 package frogger;
 import java.awt.*;
-import java.awt.geom.AffineTransform;
 import java.lang.Math;
 import java.awt.event.*;
 import java.awt.image.*;
