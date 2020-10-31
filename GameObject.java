@@ -16,6 +16,7 @@ public class GameObject{
     protected BufferedImage inputImage;
     protected ArrayList<Car> car_array = new ArrayList<Car>();
     protected int how_many_moves;
+    protected int degrees = 0;
     public GameObject(int x, int y, ID id, int how_many_moves){
         this.x = x;
         this.y = y;

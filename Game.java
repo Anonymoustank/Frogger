@@ -13,6 +13,7 @@ import javax.imageio.*;
 import javax.swing.*;
 import javax.sound.sampled.*;
 import java.lang.Math;
+import java.util.Random;
 
 public class Game extends Canvas implements Runnable{
     public static int WIDTH = 720;
@@ -22,21 +23,27 @@ public class Game extends Canvas implements Runnable{
     private boolean running = false;
     public Player player;
     private Handler handler;
-    public int min_threshold = my_height * 6;
-    public BufferedImage image, car_image0, car_image1, car_image2;
+    public int min_threshold = my_height * 7;
+    public BufferedImage image, rightcar_image0, leftcar_image0, car_image1, car_image2, death_image;
+    public BufferedImage car_image;
     public Clip first_clip, clip;
-    public boolean can_move = false;
+    public boolean can_move = true;
     public AudioInputStream audioInput;
     public int car_space = 15;
+    public Random r = new Random();
+    public int min = 0;
+    public int max = 350;
+    public int speed = 1;
     public Game(){
         player = new Player(WIDTH/2 - 24, 400, ID.Player);
         Window my_window = new Window(WIDTH, HEIGHT, "Frogger", this, player);
         handler = new Handler();
         try {
             image = ImageIO.read(new File("frogger/Images/Road.png"));
-            car_image0 = ImageIO.read(new File("frogger/Images/0.png"));
-            System.out.println(car_image0.getWidth());
-            System.out.println(car_image0.getHeight());
+            death_image = ImageIO.read(new File("frogger/Images/death.png"));
+            rightcar_image0 = ImageIO.read(new File("frogger/Images/right0.png"));
+            car_image = rightcar_image0;
+            leftcar_image0 = ImageIO.read(new File("frogger/Images/left0.png"));
             car_image1 = ImageIO.read(new File("frogger/Images/1.png"));
             car_image2 = ImageIO.read(new File("frogger/Images/2.png"));
         }
@@ -44,25 +51,35 @@ public class Game extends Canvas implements Runnable{
             e.printStackTrace();
         }
         for (int i = 0; i < 8; i++){
+            int random_num = r.nextInt((max - min) + 1) + min;
             for (int j = 0; j < 5; j++){
                 Car temp_car;
-                Road temp_road = new Road(155 * j, (-1 * (my_height * 2)) + my_height * i, ID.Road, Math.abs((-1 * (my_height * 2)) + my_height * i  - min_threshold));
-                if (j < 2){
-                    temp_car = new Car(275 * (j + 1), (-1 * (my_height * 2)) + my_height * i + car_space, ID.Car);
+                Road temp_road = new Road(155 * j, (-1 * (my_height * 2)) + my_height * (i - 2), ID.Road, Math.abs((-1 * (my_height * 2)) + my_height * (i - 2)  - min_threshold));
+                if (j == 0){
+                    temp_car = new Car(random_num, (-1 * (my_height * 2)) + my_height * (i - 2) + car_space, ID.Car);
                     temp_road.car_array.add(temp_car);
                     handler.addObject(temp_car);
                 }
+
                 handler.object.add(0, temp_road);
             }
         }
-        
         handler.addObject(player);
         for (GameObject i: handler.object){
             if (i.getID() == ID.Road){
                 i.inputImage = image; 
             }
             else if (i.getID() == ID.Car){
-                i.inputImage = car_image0;
+                if (car_image == rightcar_image0){
+                    i.inputImage = car_image;
+                    i.degrees = 90;
+                    car_image = leftcar_image0;
+                }
+                else {
+                    i.inputImage = car_image;
+                    i.degrees = 270;
+                    car_image = rightcar_image0;
+                }
             }
             else {
                 for (int j = 1; j < 8; j++){
@@ -88,6 +105,7 @@ public class Game extends Canvas implements Runnable{
         catch (Exception e){
             e.printStackTrace();
         }
+        my_window.start_game();
     }
     public synchronized void start(){
         thread = new Thread(this);
@@ -103,6 +121,27 @@ public class Game extends Canvas implements Runnable{
             e.printStackTrace();
         }
     }
+    public boolean has_collided(GameObject object1, GameObject object2){
+        int x1 = object1.getX();
+        int y1 = object1.getY();
+        int width1 = object1.inputImage.getWidth();
+        int height1 = object1.inputImage.getHeight();
+
+        int x2 = object2.getX();
+        int y2 = object2.getY();
+        int width2 = object2.inputImage.getWidth();
+        int height2 = object2.inputImage.getHeight(); 
+        if(x1 < x2 + width2 &&
+            x1 + width1 > x2 &&
+            y1 < y2 + height2 &&
+            y1 + height1 > y2)
+        {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
     public void run(){
         long lastTime = System.nanoTime();
         double amountOfTicks = 60.0;
@@ -111,27 +150,46 @@ public class Game extends Canvas implements Runnable{
         long timer = System.currentTimeMillis();
         int frames = 0;
         while (running){
-            if (can_move == false && player.getMovement()){
-                can_move = true;
-            }
-            if (can_move){
-                for (GameObject i: handler.object){
-                    if (i.getID() == ID.Road){
-                        if (i.getY() == min_threshold && i.how_many_moves == 0){
-                            i.how_many_moves = min_threshold;
-                            i.setY(0 - 92);
-                            for (GameObject j: i.car_array){
-                                j.setY(0 - 92 + car_space);
+            for (GameObject i: handler.object){
+                if (i.getID() == ID.Road){
+                    if (i.getY() >= min_threshold && i.how_many_moves <= 0){
+                        i.how_many_moves = min_threshold;
+                        i.setY(0 - my_height);
+                        for (GameObject j: i.car_array){
+                            j.setY(i.getY() + car_space);
+                        }
+                    }
+                    for (GameObject j: i.car_array){
+                        if (has_collided(player, j) && player.dead == false){
+                            player.inputImage = death_image;
+                            player.dead = true;
+                            File music = new File("frogger/Audio/squashed.wav");
+                            try {
+                                audioInput = AudioSystem.getAudioInputStream(music);
+                                clip = AudioSystem.getClip();
+                                clip.open(audioInput);
+                                clip.start();
+                            }
+                            catch (Exception e){
+                                e.printStackTrace();
                             }
                         }
-                        for (GameObject j: i.car_array){
+                        if (j.degrees == 90){
                             if (j.getX() > WIDTH){
                                 j.setX(-132);
                             }
                             else {
-                                j.setX(j.getX() + 2);
+                                j.setX(j.getX() + speed);
                             }
                         }
+                        else {
+                            if (j.getX() < -132){
+                                j.setX(HEIGHT + 132 * 2);
+                            }
+                            else {
+                                j.setX(j.getX() - speed);
+                            }
+                        }  
                     }
                 }
             }
@@ -151,19 +209,19 @@ public class Game extends Canvas implements Runnable{
                 }
                 for (GameObject i: handler.object){
                     if (i.getID() == ID.Road){
-                        if (i.getY() == min_threshold && i.how_many_moves == 0){
+                        if (i.getY() >= min_threshold && i.how_many_moves <= 0){
                             i.how_many_moves = min_threshold;
+                            i.setY(0 - my_height);
                             for (GameObject j: i.car_array){
-                                j.setY(0 - 92 + car_space);
-                            }
-                            i.setY(0 - 92);
+                                j.setY(i.getY() + car_space);
+                            }    
                         }
                         else{
                             if (player.degrees == 0){
-                                for (GameObject j: i.car_array){
-                                    j.setY(j.getY() + 1);
-                                }
                                 i.setY(i.getY() + 1);
+                                for (GameObject j: i.car_array){
+                                    j.setY(i.getY() + car_space);
+                                }
                                 i.how_many_moves -= 1;
                             }
                         }  
@@ -196,7 +254,7 @@ public class Game extends Canvas implements Runnable{
             frames++;
             if (System.currentTimeMillis() - timer > 1000){
                 timer += 1000;
-                System.out.println("FPS: " + frames);
+                // System.out.println("FPS: " + frames);
                 frames = 0;
             }
         }
