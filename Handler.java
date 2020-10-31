@@ -1,8 +1,8 @@
 package frogger;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.awt.Graphics;
 public class Handler{
-    LinkedList<GameObject> object = new LinkedList<GameObject>();
+    ArrayList<GameObject> object = new ArrayList<GameObject>();
     public void tick(){
         for (GameObject i: object){
             i.tick();

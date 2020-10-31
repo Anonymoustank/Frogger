@@ -8,7 +8,6 @@ import javax.imageio.*;
 import javax.swing.*;
 import javax.sound.sampled.*;
 public class Player extends GameObject{
-    protected BufferedImage img;
     protected int max_int = 92;
     protected int moves_remaining = max_int;
     protected boolean dead = false;

@@ -5,7 +5,7 @@ import java.awt.image.*;
 import java.io.*;
 import javax.imageio.*;
 import javax.swing.*;
-import java.util.LinkedList;
+import java.util.ArrayList;
 public class GameObject{
     protected int x, y;
     protected ID id;
@@ -14,6 +14,7 @@ public class GameObject{
     protected BufferedImage[] left_image_array = new BufferedImage[7];
     protected BufferedImage[] right_image_array = new BufferedImage[7];
     protected BufferedImage inputImage;
+    protected ArrayList<Car> car_array = new ArrayList<Car>();
     protected int how_many_moves;
     public GameObject(int x, int y, ID id, int how_many_moves){
         this.x = x;
