@@ -24,7 +24,7 @@ public class Game extends Canvas implements Runnable{
     public Player player;
     private Handler handler;
     public int min_threshold = my_height * 7;
-    public BufferedImage image, rightcar_image0, leftcar_image0, car_image1, car_image2, death_image;
+    public BufferedImage image, rightcar_image0, leftcar_image0, car_image1, car_image2, death_image, grass_image;
     public BufferedImage car_image;
     public Clip first_clip, clip;
     public boolean can_move = true;
@@ -39,6 +39,7 @@ public class Game extends Canvas implements Runnable{
         Window my_window = new Window(WIDTH, HEIGHT, "Frogger", this, player);
         handler = new Handler();
         try {
+            grass_image = ImageIO.read(new File("frogger/Images/Grass.png"));
             image = ImageIO.read(new File("frogger/Images/Road.png"));
             death_image = ImageIO.read(new File("frogger/Images/death.png"));
             rightcar_image0 = ImageIO.read(new File("frogger/Images/right0.png"));
@@ -53,6 +54,9 @@ public class Game extends Canvas implements Runnable{
         for (int i = 0; i < 8; i++){
             int random_num = r.nextInt((max - min) + 1) + min;
             for (int j = 0; j < 5; j++){
+                if (i == 7){
+                    handler.addObject(new Grass(155 * j, (-1 * (my_height * 2)) + my_height * (i - 1) + 6, ID.Grass, Math.abs((-1 * (my_height * 2)) + my_height * (i - 1)  - min_threshold)));
+                }
                 Car temp_car;
                 Road temp_road = new Road(155 * j, (-1 * (my_height * 2)) + my_height * (i - 2), ID.Road, Math.abs((-1 * (my_height * 2)) + my_height * (i - 2)  - min_threshold));
                 if (j == 0){
@@ -80,6 +84,9 @@ public class Game extends Canvas implements Runnable{
                     i.degrees = 270;
                     car_image = rightcar_image0;
                 }
+            }
+            else if (i.getID() == ID.Grass){
+                i.inputImage = grass_image;
             }
             else {
                 for (int j = 1; j < 8; j++){
@@ -151,12 +158,14 @@ public class Game extends Canvas implements Runnable{
         int frames = 0;
         while (running){
             for (GameObject i: handler.object){
-                if (i.getID() == ID.Road){
+                if (i.getID() == ID.Road || i.getID() == ID.Road){
                     if (i.getY() >= min_threshold && i.how_many_moves <= 0){
                         i.how_many_moves = min_threshold;
-                        i.setY(0 - my_height);
-                        for (GameObject j: i.car_array){
-                            j.setY(i.getY() + car_space);
+                        if (i.getID() == ID.Road){
+                            i.setY(0 - my_height);
+                            for (GameObject j: i.car_array){
+                                j.setY(i.getY() + car_space);
+                            }
                         }
                     }
                     for (GameObject j: i.car_array){
@@ -208,13 +217,15 @@ public class Game extends Canvas implements Runnable{
                     }
                 }
                 for (GameObject i: handler.object){
-                    if (i.getID() == ID.Road){
+                    if (i.getID() == ID.Road || i.getID() == ID.Grass){
                         if (i.getY() >= min_threshold && i.how_many_moves <= 0){
                             i.how_many_moves = min_threshold;
-                            i.setY(0 - my_height);
-                            for (GameObject j: i.car_array){
-                                j.setY(i.getY() + car_space);
-                            }    
+                            if (i.getID() == ID.Road){
+                                i.setY(0 - my_height);
+                                for (GameObject j: i.car_array){
+                                    j.setY(i.getY() + car_space);
+                                }    
+                            }
                         }
                         else{
                             if (player.degrees == 0){
@@ -225,6 +236,11 @@ public class Game extends Canvas implements Runnable{
                                 i.how_many_moves -= 1;
                             }
                         }  
+                    }
+                }
+                for (int i = 0; i < handler.object.size(); i++){
+                    if (handler.object.get(i).getY() >= min_threshold && handler.object.get(i).getID() == ID.Grass){
+                        handler.removeObject(handler.object.get(i));
                     }
                 }
                 if (player.degrees == 0){
