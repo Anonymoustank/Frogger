@@ -55,7 +55,7 @@ public class Game extends Canvas implements Runnable{
             int random_num = r.nextInt((max - min) + 1) + min;
             for (int j = 0; j < 5; j++){
                 if (i == 7){
-                    handler.addObject(new Grass(155 * j, (-1 * (my_height * 2)) + my_height * (i - 1) + 6, ID.Grass, Math.abs((-1 * (my_height * 2)) + my_height * (i - 1)  - min_threshold)));
+                    handler.addObject(new Road(155 * j, (-1 * (my_height * 2)) + my_height * (i - 1) + 6, ID.Grass, Math.abs((-1 * (my_height * 2)) + my_height * (i - 1)  - min_threshold)));
                 }
                 Car temp_car;
                 Road temp_road = new Road(155 * j, (-1 * (my_height * 2)) + my_height * (i - 2), ID.Road, Math.abs((-1 * (my_height * 2)) + my_height * (i - 2)  - min_threshold));
@@ -64,7 +64,6 @@ public class Game extends Canvas implements Runnable{
                     temp_road.car_array.add(temp_car);
                     handler.addObject(temp_car);
                 }
-
                 handler.object.add(0, temp_road);
             }
         }
@@ -149,6 +148,19 @@ public class Game extends Canvas implements Runnable{
             return false;
         }
     }
+    public void check_move_up(GameObject i){
+        if (i.getY() >= min_threshold && i.how_many_moves <= 0){
+            i.how_many_moves = min_threshold;
+            if (i.getID() == ID.Road){
+                i.setY(0 - my_height);
+                for (GameObject j: i.car_array){
+                    int random_num = r.nextInt((HEIGHT + 132) + 1) + 132;
+                    j.setY(i.getY() + car_space);
+                    j.setX(random_num);
+                }
+            }
+        }
+    }
     public void run(){
         long lastTime = System.nanoTime();
         double amountOfTicks = 60.0;
@@ -157,17 +169,51 @@ public class Game extends Canvas implements Runnable{
         long timer = System.currentTimeMillis();
         int frames = 0;
         while (running){
-            for (GameObject i: handler.object){
-                if (i.getID() == ID.Road || i.getID() == ID.Road){
-                    if (i.getY() >= min_threshold && i.how_many_moves <= 0){
-                        i.how_many_moves = min_threshold;
-                        if (i.getID() == ID.Road){
-                            i.setY(0 - my_height);
+            if (player.getMovement()){
+                if (player.degrees == 270){
+                    player.setX(player.getX() - 1);
+                    player.moves_remaining -= 1;
+                }
+                else if (player.degrees == 90){
+                    player.setX(player.getX() + 1);
+                    player.moves_remaining -= 1;
+                }
+                first_clip.stop();
+                if (player.moves_remaining == my_height){
+                    File music = new File("frogger/Audio/hop.wav");
+                    try {
+                        audioInput = AudioSystem.getAudioInputStream(music);
+                        clip = AudioSystem.getClip();
+                        clip.open(audioInput);
+                        clip.start();
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+                for (GameObject i: handler.object){
+                    if (i.getID() == ID.Road || i.getID() == ID.Grass){
+                        if (player.degrees == 0){
+                            i.setY(i.getY() + 1);
                             for (GameObject j: i.car_array){
                                 j.setY(i.getY() + car_space);
                             }
-                        }
+                            i.how_many_moves -= 1;
+                        } 
                     }
+                }
+                for (int i = 0; i < handler.object.size(); i++){
+                    if (handler.object.get(i).getY() >= min_threshold && handler.object.get(i).getID() == ID.Grass){
+                        handler.removeObject(handler.object.get(i));
+                    }
+                }
+                if (player.degrees == 0){
+                    player.moves_remaining -= 1;
+                }
+            }
+            for (GameObject i: handler.object){
+                if (i.getID() == ID.Road || i.getID() == ID.Grass){
+                    check_move_up(i);
                     for (GameObject j: i.car_array){
                         if (has_collided(player, j) && player.dead == false){
                             player.inputImage = death_image;
@@ -200,61 +246,6 @@ public class Game extends Canvas implements Runnable{
                             }
                         }  
                     }
-                }
-            }
-            if (player.getMovement()){
-                first_clip.stop();
-                if (player.moves_remaining == my_height){
-                    File music = new File("frogger/Audio/hop.wav");
-                    try {
-                        audioInput = AudioSystem.getAudioInputStream(music);
-                        clip = AudioSystem.getClip();
-                        clip.open(audioInput);
-                        clip.start();
-                    }
-                    catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-                for (GameObject i: handler.object){
-                    if (i.getID() == ID.Road || i.getID() == ID.Grass){
-                        if (i.getY() >= min_threshold && i.how_many_moves <= 0){
-                            i.how_many_moves = min_threshold;
-                            if (i.getID() == ID.Road){
-                                i.setY(0 - my_height);
-                                for (GameObject j: i.car_array){
-                                    j.setY(i.getY() + car_space);
-                                }    
-                            }
-                        }
-                        else{
-                            if (player.degrees == 0){
-                                i.setY(i.getY() + 1);
-                                for (GameObject j: i.car_array){
-                                    j.setY(i.getY() + car_space);
-                                }
-                                i.how_many_moves -= 1;
-                            }
-                        }  
-                    }
-                }
-                for (int i = 0; i < handler.object.size(); i++){
-                    if (handler.object.get(i).getY() >= min_threshold && handler.object.get(i).getID() == ID.Grass){
-                        handler.removeObject(handler.object.get(i));
-                    }
-                }
-                if (player.degrees == 0){
-                    player.moves_remaining -= 1;
-                }
-            }
-            if (player.getMovement()){
-                if (player.degrees == 270){
-                    player.setX(player.getX() - 1);
-                    player.moves_remaining -= 1;
-                }
-                else if (player.degrees == 90){
-                    player.setX(player.getX() + 1);
-                    player.moves_remaining -= 1;
                 }
             }
             long now = System.nanoTime();
