@@ -34,6 +34,9 @@ public class Game extends Canvas implements Runnable{
     public int min = 0;
     public int max = 350;
     public int speed = 1;
+    public int score = 0;
+    public int times_moved = 0;
+    Road grass;
     public Game(){
         player = new Player(WIDTH/2 - 24, 400, ID.Player);
         Window my_window = new Window(WIDTH, HEIGHT, "Frogger", this, player);
@@ -54,19 +57,23 @@ public class Game extends Canvas implements Runnable{
         for (int i = 0; i < 8; i++){
             int random_num = r.nextInt((max - min) + 1) + min;
             for (int j = 0; j < 5; j++){
-                if (i == 7){
-                    handler.addObject(new Road(155 * j, (-1 * (my_height * 2)) + my_height * (i - 1) + 6, ID.Grass, Math.abs((-1 * (my_height * 2)) + my_height * (i - 1)  - min_threshold)));
+                if (i != 7){
+                    Car temp_car;
+                    Road temp_road = new Road(155 * j, (-1 * (my_height * 2)) + my_height * (i - 2), ID.Road, Math.abs((-1 * (my_height * 2)) + my_height * (i - 2) - min_threshold));
+                    if (j == 0){
+                        temp_car = new Car(random_num, (-1 * (my_height * 2)) + my_height * (i - 2) + car_space, ID.Car);
+                        temp_road.car_array.add(temp_car);
+                        handler.addObject(temp_car);
+                    }
+                    handler.object.add(0, temp_road);
                 }
-                Car temp_car;
-                Road temp_road = new Road(155 * j, (-1 * (my_height * 2)) + my_height * (i - 2), ID.Road, Math.abs((-1 * (my_height * 2)) + my_height * (i - 2)  - min_threshold));
-                if (j == 0){
-                    temp_car = new Car(random_num, (-1 * (my_height * 2)) + my_height * (i - 2) + car_space, ID.Car);
-                    temp_road.car_array.add(temp_car);
-                    handler.addObject(temp_car);
+                else {
+                    grass = new Road(155 * j, (-1 * (my_height * 2)) + my_height * (i - 1) + 6, ID.Grass, Math.abs((-1 * (my_height * 2)) + my_height * (i - 2) - min_threshold));
+                    handler.addObject(grass);  
                 }
-                handler.object.add(0, temp_road);
             }
         }
+        System.out.println(grass.getY());
         handler.addObject(player);
         for (GameObject i: handler.object){
             if (i.getID() == ID.Road){
@@ -150,6 +157,7 @@ public class Game extends Canvas implements Runnable{
     }
     public void check_move_up(GameObject i){
         if (i.getY() >= min_threshold && i.how_many_moves <= 0){
+            score++;
             i.how_many_moves = min_threshold;
             if (i.getID() == ID.Road){
                 i.setY(0 - my_height);
@@ -158,6 +166,9 @@ public class Game extends Canvas implements Runnable{
                     j.setY(i.getY() + car_space);
                     j.setX(random_num);
                 }
+            }
+            else {
+                i.setY(0 - my_height);
             }
         }
     }
@@ -199,16 +210,19 @@ public class Game extends Canvas implements Runnable{
                                 j.setY(i.getY() + car_space);
                             }
                             i.how_many_moves -= 1;
+                            // times_moved++;
                         } 
-                    }
-                }
-                for (int i = 0; i < handler.object.size(); i++){
-                    if (handler.object.get(i).getY() >= min_threshold && handler.object.get(i).getID() == ID.Grass){
-                        handler.removeObject(handler.object.get(i));
                     }
                 }
                 if (player.degrees == 0){
                     player.moves_remaining -= 1;
+                    if (player.moves_remaining == 0){
+                        // System.out.println(times_moved);
+                        System.out.println(grass.getY());
+                        times_moved = 0;
+                        player.setMovement(false);
+                        player.moves_remaining = my_height;
+                    }
                 }
             }
             for (GameObject i: handler.object){

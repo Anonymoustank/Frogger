@@ -30,10 +30,6 @@ public class Player extends GameObject{
                 }
             }
         }
-        else {
-            this.moves_remaining = max_int;
-            this.setMovement(false);
-        }
         g.drawImage(inputImage, x, y, null);
     }
 }
