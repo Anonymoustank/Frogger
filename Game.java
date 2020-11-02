@@ -16,6 +16,7 @@ import java.lang.Math;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.awt.Font;
 
 public class Game extends Canvas implements Runnable{
     public static int WIDTH = 720;
@@ -38,6 +39,9 @@ public class Game extends Canvas implements Runnable{
     public int speed = 1;
     public int score = 0;
     public int times_moved = 0;
+    public int frames = 0;
+    public int display_fps = 0;
+    long timer;
     public ArrayList<BufferedImage> rightcars, leftcars;
     public Game(){
         player = new Player(WIDTH/2 - 24, 400, ID.Player);
@@ -82,7 +86,6 @@ public class Game extends Canvas implements Runnable{
         for (GameObject i: handler.object){
             if (i.getID() == ID.Road){
                 i.inputImage = image; 
-                System.out.println(i.car_array.size());
             }
             else if (i.getID() == ID.Car){
                 if (car_image == rightcar_image0){
@@ -167,11 +170,16 @@ public class Game extends Canvas implements Runnable{
     }
     public void check_move_up(GameObject i){
         if (i.getY() >= min_threshold && i.how_many_moves <= 0){
-            score++;
             i.how_many_moves = min_threshold;
             if (i.getID() == ID.Road){
                 i.setY(0 - my_height);
                 for (GameObject j: i.car_array){
+                    if (j.degrees == 90){
+                        j.inputImage = rightcars.get(r.nextInt(rightcars.size()));
+                    }
+                    else {
+                        j.inputImage = leftcars.get(r.nextInt(leftcars.size()));
+                    }
                     int random_num = r.nextInt((HEIGHT + 132) + 1) - 132;
                     j.setY(i.getY() + car_space);
                     j.setX(random_num);
@@ -187,8 +195,8 @@ public class Game extends Canvas implements Runnable{
         double amountOfTicks = 60.0;
         double ns = 1000000000 / amountOfTicks;
         double delta = 0;
-        long timer = System.currentTimeMillis();
-        int frames = 0;
+        timer = System.currentTimeMillis();
+        frames = 0;
         while (running){
             if (player.getMovement()){
                 if (player.degrees == 270){
@@ -215,6 +223,9 @@ public class Game extends Canvas implements Runnable{
                 }
                 player.moves_remaining -= 1;
                 if (player.moves_remaining == 0){
+                    if (player.degrees == 0){
+                        score++;
+                    }
                     // System.out.println(times_moved);
                     times_moved = 0;
                     player.setMovement(false);
@@ -260,11 +271,7 @@ public class Game extends Canvas implements Runnable{
                 render();
             }
             frames++;
-            if (System.currentTimeMillis() - timer > 1000){
-                timer += 1000;
-                // System.out.println("FPS: " + frames);
-                frames = 0;
-            }
+            
         }
         stop();
     }
@@ -283,6 +290,18 @@ public class Game extends Canvas implements Runnable{
         g.setColor(Color.black);
         g.fillRect(0, 0, WIDTH, HEIGHT);
         handler.render(g);
+        int fontSize = 25;
+        g.setFont(new Font("TimesRoman", Font.BOLD, fontSize));
+        g.setColor(Color.red);
+        g.drawString("Score: " + score, WIDTH - 100, 450);
+        if (System.currentTimeMillis() - timer > 1000){
+            timer += 1000;
+            display_fps = frames;
+            frames = 0;
+        }
+        if (display_fps != 0){
+            g.drawString("FPS: " + display_fps, 0, 450);
+        }
         g.dispose();
         bs.show();
     }
