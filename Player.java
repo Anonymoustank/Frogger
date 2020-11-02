@@ -1,12 +1,6 @@
 package frogger;
-import java.awt.*;
-import java.lang.Math;
-import java.awt.event.*;
-import java.awt.image.*;
-import java.io.*;
-import javax.imageio.*;
-import javax.swing.*;
-import javax.sound.sampled.*;
+import java.awt.Graphics;
+
 public class Player extends GameObject{
     protected int max_int = 92;
     protected int moves_remaining = max_int;

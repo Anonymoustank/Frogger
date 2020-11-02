@@ -1,16 +1,12 @@
 package frogger;
 
 import java.awt.Canvas;
-import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.image.BufferStrategy;
-import java.awt.event.*;
 import java.awt.image.*;
-import java.io.*;
+import java.io.File;
 import javax.imageio.*;
-import javax.swing.*;
 import javax.sound.sampled.*;
 import java.lang.Math;
 import java.util.Random;
@@ -37,7 +33,7 @@ public class Game extends Canvas implements Runnable{
     public int min = 0;
     public int max = 350;
     public int speed = 1;
-    public int score = 0;
+    public int my_score = 0;
     public int times_moved = 0;
     public int frames = 0;
     public int display_fps = 0;
@@ -68,17 +64,17 @@ public class Game extends Canvas implements Runnable{
             int random_num = r.nextInt((max - min) + 1) + min;
             for (int j = 0; j < 5; j++){
                 if (i != 7){
-                    Car temp_car;
-                    Road temp_road = new Road(155 * j, (-1 * (my_height * 2)) + my_height * (i - 2), ID.Road, Math.abs((-1 * (my_height * 2)) + my_height * (i - 2) - min_threshold));
+                    GameObject temp_car;
+                    GameObject temp_road = new GameObject(155 * j, (-1 * (my_height * 2)) + my_height * (i - 2), ID.Road, Math.abs((-1 * (my_height * 2)) + my_height * (i - 2) - min_threshold));
                     if (j == 0){
-                        temp_car = new Car(random_num, (-1 * (my_height * 2)) + my_height * (i - 2) + car_space, ID.Car);
+                        temp_car = new GameObject(random_num, (-1 * (my_height * 2)) + my_height * (i - 2) + car_space, ID.Car, 0);
                         temp_road.car_array.add(temp_car);
                         handler.addObject(temp_car);
                     }
                     handler.object.add(0, temp_road);
                 }
                 else {
-                    handler.addObject(new Road(155 * j, (-1 * (my_height * 2)) + my_height * (i - 1) + 6, ID.Grass, Math.abs((-1 * (my_height * 2)) + my_height * (i - 2) - min_threshold)));  
+                    handler.addObject(new GameObject(155 * j, (-1 * (my_height * 2)) + my_height * (i - 1) + 6, ID.Grass, Math.abs((-1 * (my_height * 2)) + my_height * (i - 2) - min_threshold)));  
                 }
             }
         }
@@ -117,7 +113,7 @@ public class Game extends Canvas implements Runnable{
             }
         }
         first_clip = play_music("frogger/Audio/start.wav");
-        my_window.start_game();
+        this.start();
     }
     public synchronized void start(){
         thread = new Thread(this);
@@ -224,7 +220,7 @@ public class Game extends Canvas implements Runnable{
                 player.moves_remaining -= 1;
                 if (player.moves_remaining == 0){
                     if (player.degrees == 0){
-                        score++;
+                        my_score += 1;
                     }
                     // System.out.println(times_moved);
                     times_moved = 0;
@@ -293,7 +289,7 @@ public class Game extends Canvas implements Runnable{
         int fontSize = 25;
         g.setFont(new Font("TimesRoman", Font.BOLD, fontSize));
         g.setColor(Color.red);
-        g.drawString("Score: " + score, WIDTH - 100, 450);
+        g.drawString("Score: " + my_score, WIDTH - 125, 450);
         if (System.currentTimeMillis() - timer > 1000){
             timer += 1000;
             display_fps = frames;

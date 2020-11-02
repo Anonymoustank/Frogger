@@ -1,10 +1,6 @@
 package frogger;
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.*;
-import java.io.*;
-import javax.imageio.*;
-import javax.swing.*;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 public class GameObject{
     protected int x, y;
@@ -14,7 +10,7 @@ public class GameObject{
     protected BufferedImage[] left_image_array = new BufferedImage[7];
     protected BufferedImage[] right_image_array = new BufferedImage[7];
     protected BufferedImage inputImage;
-    protected ArrayList<Car> car_array = new ArrayList<Car>();
+    protected ArrayList<GameObject> car_array = new ArrayList<GameObject>();
     protected int how_many_moves;
     protected int degrees = 0;
     public GameObject(int x, int y, ID id, int how_many_moves){
@@ -27,7 +23,7 @@ public class GameObject{
 
     }
     public void render(Graphics g){
-
+        g.drawImage(inputImage, x, y, null);
     }
     public void setX(int x){
         this.x = x;
