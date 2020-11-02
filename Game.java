@@ -14,6 +14,8 @@ import javax.swing.*;
 import javax.sound.sampled.*;
 import java.lang.Math;
 import java.util.Random;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Game extends Canvas implements Runnable{
     public static int WIDTH = 720;
@@ -24,7 +26,7 @@ public class Game extends Canvas implements Runnable{
     public Player player;
     private Handler handler;
     public int min_threshold = my_height * 7;
-    public BufferedImage image, rightcar_image0, leftcar_image0, car_image1, car_image2, death_image, grass_image;
+    public BufferedImage image, rightcar_image0, leftcar_image0, rightcar_image1, rightcar_image2, leftcar_image1, leftcar_image2, death_image, grass_image;
     public BufferedImage car_image;
     public Clip first_clip;
     public boolean can_move = true;
@@ -36,6 +38,7 @@ public class Game extends Canvas implements Runnable{
     public int speed = 1;
     public int score = 0;
     public int times_moved = 0;
+    public ArrayList<BufferedImage> rightcars, leftcars;
     public Game(){
         player = new Player(WIDTH/2 - 24, 400, ID.Player);
         Window my_window = new Window(WIDTH, HEIGHT, "Frogger", this, player);
@@ -45,10 +48,14 @@ public class Game extends Canvas implements Runnable{
             image = ImageIO.read(new File("frogger/Images/Road.png"));
             death_image = ImageIO.read(new File("frogger/Images/death.png"));
             rightcar_image0 = ImageIO.read(new File("frogger/Images/right0.png"));
+            rightcar_image1 = ImageIO.read(new File("frogger/Images/right1.png"));
+            rightcar_image2 = ImageIO.read(new File("frogger/Images/right2.png"));
             car_image = rightcar_image0;
             leftcar_image0 = ImageIO.read(new File("frogger/Images/left0.png"));
-            car_image1 = ImageIO.read(new File("frogger/Images/1.png"));
-            car_image2 = ImageIO.read(new File("frogger/Images/2.png"));
+            leftcar_image1 = ImageIO.read(new File("frogger/Images/left1.png"));
+            leftcar_image2 = ImageIO.read(new File("frogger/Images/left2.png"));
+            rightcars = new ArrayList<BufferedImage>(Arrays.asList(rightcar_image0, rightcar_image1, rightcar_image2));
+            leftcars = new ArrayList<BufferedImage>(Arrays.asList(leftcar_image0, leftcar_image1, leftcar_image2));
         }
         catch (Exception e){
             e.printStackTrace();
@@ -75,15 +82,16 @@ public class Game extends Canvas implements Runnable{
         for (GameObject i: handler.object){
             if (i.getID() == ID.Road){
                 i.inputImage = image; 
+                System.out.println(i.car_array.size());
             }
             else if (i.getID() == ID.Car){
                 if (car_image == rightcar_image0){
-                    i.inputImage = car_image;
+                    i.inputImage = rightcars.get(r.nextInt(rightcars.size()));
                     i.degrees = 90;
                     car_image = leftcar_image0;
                 }
                 else {
-                    i.inputImage = car_image;
+                    i.inputImage = leftcars.get(r.nextInt(leftcars.size()));;
                     i.degrees = 270;
                     car_image = rightcar_image0;
                 }
@@ -164,7 +172,7 @@ public class Game extends Canvas implements Runnable{
             if (i.getID() == ID.Road){
                 i.setY(0 - my_height);
                 for (GameObject j: i.car_array){
-                    int random_num = r.nextInt((HEIGHT + 132) + 1) + 132;
+                    int random_num = r.nextInt((HEIGHT + 132) + 1) - 132;
                     j.setY(i.getY() + car_space);
                     j.setX(random_num);
                 }
@@ -185,11 +193,9 @@ public class Game extends Canvas implements Runnable{
             if (player.getMovement()){
                 if (player.degrees == 270){
                     player.setX(player.getX() - 1);
-                    player.moves_remaining -= 1;
                 }
                 else if (player.degrees == 90){
                     player.setX(player.getX() + 1);
-                    player.moves_remaining -= 1;
                 }
                 if (player.moves_remaining == my_height){
                     first_clip.stop();
@@ -207,14 +213,12 @@ public class Game extends Canvas implements Runnable{
                         } 
                     }
                 }
-                if (player.degrees == 0){
-                    player.moves_remaining -= 1;
-                    if (player.moves_remaining == 0){
-                        // System.out.println(times_moved);
-                        times_moved = 0;
-                        player.setMovement(false);
-                        player.moves_remaining = my_height;
-                    }
+                player.moves_remaining -= 1;
+                if (player.moves_remaining == 0){
+                    // System.out.println(times_moved);
+                    times_moved = 0;
+                    player.setMovement(false);
+                    player.moves_remaining = my_height;
                 }
             }
             for (GameObject i: handler.object){
