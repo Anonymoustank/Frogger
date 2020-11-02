@@ -26,7 +26,7 @@ public class Game extends Canvas implements Runnable{
     public int min_threshold = my_height * 7;
     public BufferedImage image, rightcar_image0, leftcar_image0, car_image1, car_image2, death_image, grass_image;
     public BufferedImage car_image;
-    public Clip first_clip, clip;
+    public Clip first_clip;
     public boolean can_move = true;
     public AudioInputStream audioInput;
     public int car_space = 15;
@@ -36,7 +36,6 @@ public class Game extends Canvas implements Runnable{
     public int speed = 1;
     public int score = 0;
     public int times_moved = 0;
-    Road grass;
     public Game(){
         player = new Player(WIDTH/2 - 24, 400, ID.Player);
         Window my_window = new Window(WIDTH, HEIGHT, "Frogger", this, player);
@@ -68,12 +67,10 @@ public class Game extends Canvas implements Runnable{
                     handler.object.add(0, temp_road);
                 }
                 else {
-                    grass = new Road(155 * j, (-1 * (my_height * 2)) + my_height * (i - 1) + 6, ID.Grass, Math.abs((-1 * (my_height * 2)) + my_height * (i - 2) - min_threshold));
-                    handler.addObject(grass);  
+                    handler.addObject(new Road(155 * j, (-1 * (my_height * 2)) + my_height * (i - 1) + 6, ID.Grass, Math.abs((-1 * (my_height * 2)) + my_height * (i - 2) - min_threshold)));  
                 }
             }
         }
-        System.out.println(grass.getY());
         handler.addObject(player);
         for (GameObject i: handler.object){
             if (i.getID() == ID.Road){
@@ -108,16 +105,7 @@ public class Game extends Canvas implements Runnable{
                 i.inputImage = i.image_array[0];
             }
         }
-        File music = new File("frogger/Audio/start.wav");
-        try {
-            audioInput = AudioSystem.getAudioInputStream(music);
-            first_clip = AudioSystem.getClip();
-            first_clip.open(audioInput);
-            first_clip.start();
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
+        first_clip = play_music("frogger/Audio/start.wav");
         my_window.start_game();
     }
     public synchronized void start(){
@@ -155,6 +143,20 @@ public class Game extends Canvas implements Runnable{
             return false;
         }
     }
+    public Clip play_music(String filepath){
+        Clip clip = null;
+        try {
+            audioInput = AudioSystem.getAudioInputStream(new File(filepath));
+            clip = AudioSystem.getClip();
+            clip.open(audioInput);
+            clip.start();
+            return clip;
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return clip;
+    }
     public void check_move_up(GameObject i){
         if (i.getY() >= min_threshold && i.how_many_moves <= 0){
             score++;
@@ -189,18 +191,9 @@ public class Game extends Canvas implements Runnable{
                     player.setX(player.getX() + 1);
                     player.moves_remaining -= 1;
                 }
-                first_clip.stop();
                 if (player.moves_remaining == my_height){
-                    File music = new File("frogger/Audio/hop.wav");
-                    try {
-                        audioInput = AudioSystem.getAudioInputStream(music);
-                        clip = AudioSystem.getClip();
-                        clip.open(audioInput);
-                        clip.start();
-                    }
-                    catch (Exception e){
-                        e.printStackTrace();
-                    }
+                    first_clip.stop();
+                    play_music("frogger/Audio/hop.wav");
                 }
                 for (GameObject i: handler.object){
                     if (i.getID() == ID.Road || i.getID() == ID.Grass){
@@ -218,7 +211,6 @@ public class Game extends Canvas implements Runnable{
                     player.moves_remaining -= 1;
                     if (player.moves_remaining == 0){
                         // System.out.println(times_moved);
-                        System.out.println(grass.getY());
                         times_moved = 0;
                         player.setMovement(false);
                         player.moves_remaining = my_height;
@@ -232,16 +224,7 @@ public class Game extends Canvas implements Runnable{
                         if (has_collided(player, j) && player.dead == false){
                             player.inputImage = death_image;
                             player.dead = true;
-                            File music = new File("frogger/Audio/squashed.wav");
-                            try {
-                                audioInput = AudioSystem.getAudioInputStream(music);
-                                clip = AudioSystem.getClip();
-                                clip.open(audioInput);
-                                clip.start();
-                            }
-                            catch (Exception e){
-                                e.printStackTrace();
-                            }
+                            play_music("frogger/Audio/squashed.wav");
                         }
                         if (j.degrees == 90){
                             if (j.getX() > WIDTH){
