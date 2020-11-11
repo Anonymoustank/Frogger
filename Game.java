@@ -2,31 +2,30 @@ package frogger;
 
 import java.awt.Canvas;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.BufferStrategy;
 import java.io.File;
-import javax.imageio.*;
+import javax.imageio.ImageIO;
 import javax.sound.sampled.*;
 import java.lang.Math;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.awt.Font;
+import java.util.Collections;
 
 public class Game extends Canvas implements Runnable{
     public static int WIDTH = 720;
-    public static int my_height = 92;
     public static int HEIGHT = 503;
+    public static int my_height = 92;
     private Thread thread;
     private boolean running = false;
     public Player player;
     private Handler handler;
     public int min_threshold = my_height * 7;
-    public BufferedImage image, rightcar_image0, leftcar_image0, rightcar_image1, rightcar_image2, leftcar_image1, leftcar_image2, death_image, grass_image;
-    public BufferedImage car_image;
+    public BufferedImage image, rightcar_image0, leftcar_image0, rightcar_image1, rightcar_image2, leftcar_image1, leftcar_image2, death_image, grass_image, car_image;
     public Clip first_clip;
-    public boolean can_move = true;
     public AudioInputStream audioInput;
     public int car_space = 15;
     public Random r = new Random();
@@ -37,8 +36,11 @@ public class Game extends Canvas implements Runnable{
     public int times_moved = 0;
     public int frames = 0;
     public int display_fps = 0;
-    long timer;
+    public long timer;
+    public boolean turn_to_grass = false;
     public ArrayList<BufferedImage> rightcars, leftcars;
+    public ArrayList<GameObject> reordered_grass = new ArrayList<GameObject>();
+    int amount_of_times_moved = 0;
     public Game(){
         player = new Player(WIDTH/2 - 24, 400, ID.Player);
         Window my_window = new Window(WIDTH, HEIGHT, "Frogger", this, player);
@@ -82,23 +84,36 @@ public class Game extends Canvas implements Runnable{
         for (GameObject i: handler.object){
             if (i.getID() == ID.Road){
                 i.inputImage = image; 
-            }
-            else if (i.getID() == ID.Car){
                 if (car_image == rightcar_image0){
-                    i.inputImage = rightcars.get(r.nextInt(rightcars.size()));
                     i.degrees = 90;
                     car_image = leftcar_image0;
                 }
                 else {
-                    i.inputImage = leftcars.get(r.nextInt(leftcars.size()));;
                     i.degrees = 270;
                     car_image = rightcar_image0;
+                }
+                for (GameObject j: i.car_array){
+                    j.degrees = i.degrees;
+                    if (i.degrees == 90){
+                        j.inputImage = rightcars.get(r.nextInt(rightcars.size()));
+                    }
+                    else {
+                        j.inputImage = leftcars.get(r.nextInt(leftcars.size()));
+                    }
                 }
             }
             else if (i.getID() == ID.Grass){
                 i.inputImage = grass_image;
+                if (car_image == rightcar_image0){
+                    i.degrees = 90;
+                    car_image = leftcar_image0;
+                }
+                else {
+                    i.degrees = 270;
+                    car_image = rightcar_image0;
+                }
             }
-            else {
+            else if (i.getID() == ID.Player) {
                 for (int j = 1; j < 8; j++){
                     try {
                         player.image_array[j - 1] = ImageIO.read(new File("frogger/Images/frog" + Integer.toString(j) + ".png"));
@@ -112,13 +127,13 @@ public class Game extends Canvas implements Runnable{
                 i.inputImage = i.image_array[0];
             }
         }
-        first_clip = play_music("frogger/Audio/start.wav");
         this.start();
     }
     public synchronized void start(){
         thread = new Thread(this);
         thread.start();
-        running = true;
+        running = true; 
+        first_clip = play_music("frogger/Audio/start.wav");
     }
     public synchronized void stop(){
         try {
@@ -139,11 +154,8 @@ public class Game extends Canvas implements Runnable{
         int y2 = object2.getY();
         int width2 = object2.inputImage.getWidth();
         int height2 = object2.inputImage.getHeight(); 
-        if(x1 < x2 + width2 &&
-            x1 + width1 > x2 &&
-            y1 < y2 + height2 &&
-            y1 + height1 > y2)
-        {
+        
+        if(x1 < x2 + width2 && x1 + width1 > x2 && y1 < y2 + height2 && y1 + height1 > y2){ 
             return true;
         }
         else {
@@ -167,19 +179,49 @@ public class Game extends Canvas implements Runnable{
     public void check_move_up(GameObject i){
         if (i.getY() >= min_threshold && i.how_many_moves <= 0){
             i.how_many_moves = min_threshold;
+            int random_num = r.nextInt((HEIGHT + 132) + 1) - 132;
             if (i.getID() == ID.Road){
                 i.setY(0 - my_height);
-                for (GameObject j: i.car_array){
-                    if (j.degrees == 90){
-                        j.inputImage = rightcars.get(r.nextInt(rightcars.size()));
+                if (my_score % 16 == 0 && turn_to_grass){
+                    i.setID(ID.Grass);
+                    i.inputImage = grass_image;
+                    reordered_grass.add(i);
+                    for (int j = 0; j < i.car_array.size(); j++){
+                        handler.removeObject(i.car_array.get(j));
+                        i.car_array.remove(i.car_array.get(j));
+                    }
+                }
+                else {
+                    for (GameObject j: i.car_array){
+                        j.degrees = i.degrees;
+                        if (j.degrees == 90){
+                            j.inputImage = rightcars.get(r.nextInt(rightcars.size()));
+                        }
+                        else {
+                            j.inputImage = leftcars.get(r.nextInt(leftcars.size()));
+                        }
+                        j.setY(i.getY() + car_space);
+                        j.setX(random_num);
+                    }
+                }      
+            }
+            else if (i.getID() == ID.Grass){
+                i.setY(0 - my_height);
+                i.setID(ID.Road);
+                if (amount_of_times_moved == 0){
+                    GameObject car = new GameObject(random_num, i.getY() + car_space, ID.Car, 0);
+                    i.car_array.add(car);
+                    handler.addObject(car);
+                    if (i.degrees == 90){
+                        car.inputImage = rightcars.get(r.nextInt(rightcars.size()));
                     }
                     else {
-                        j.inputImage = leftcars.get(r.nextInt(leftcars.size()));
+                        car.inputImage = leftcars.get(r.nextInt(leftcars.size()));
                     }
-                    int random_num = r.nextInt((HEIGHT + 132) + 1) - 132;
-                    j.setY(i.getY() + car_space);
-                    j.setX(random_num);
+                    car.degrees = i.degrees;
                 }
+                i.inputImage = image;
+                amount_of_times_moved++;
             }
             else {
                 i.setY(0 - my_height);
@@ -230,9 +272,9 @@ public class Game extends Canvas implements Runnable{
             }
             for (GameObject i: handler.object){
                 if (i.getID() == ID.Road || i.getID() == ID.Grass){
-                    check_move_up(i);
                     for (GameObject j: i.car_array){
                         if (has_collided(player, j) && player.dead == false){
+                            player.setMovement(false);
                             player.inputImage = death_image;
                             player.dead = true;
                             play_music("frogger/Audio/squashed.wav");
@@ -254,8 +296,24 @@ public class Game extends Canvas implements Runnable{
                             }
                         }  
                     }
+                    
                 }
             }
+            if (r.nextInt(3) == 0){
+                turn_to_grass = true;
+            }
+            for (int i = 0; i < handler.object.size(); i++){
+                if (handler.object.get(i).getID() == ID.Road || handler.object.get(i).getID() == ID.Grass){
+                    check_move_up(handler.object.get(i));
+                }
+            }
+            for (GameObject i: reordered_grass){
+                handler.removeObject(i);
+                handler.object.add(35, i);
+            }
+            reordered_grass.clear();
+            turn_to_grass = false;
+            amount_of_times_moved = 0;
             long now = System.nanoTime();
             delta += (now - lastTime) / ns;
             lastTime = now;
@@ -267,7 +325,6 @@ public class Game extends Canvas implements Runnable{
                 render();
             }
             frames++;
-            
         }
         stop();
     }

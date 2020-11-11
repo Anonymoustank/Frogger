@@ -13,6 +13,7 @@ public class GameObject{
     protected ArrayList<GameObject> car_array = new ArrayList<GameObject>();
     protected int how_many_moves;
     protected int degrees = 0;
+    protected boolean first_object = false;
     public GameObject(int x, int y, ID id, int how_many_moves){
         this.x = x;
         this.y = y;
