@@ -13,7 +13,8 @@ import java.util.Random;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.awt.Font;
-import java.util.Collections;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Game extends Canvas implements Runnable{
     public static int WIDTH = 720;
@@ -40,7 +41,9 @@ public class Game extends Canvas implements Runnable{
     public boolean turn_to_grass = false;
     public ArrayList<BufferedImage> rightcars, leftcars;
     public ArrayList<GameObject> reordered_grass = new ArrayList<GameObject>();
-    int amount_of_times_moved = 0;
+    public int amount_of_times_moved = 0;
+    public Timer my_timer = new Timer();
+    public TimerTask task = null;
     public Game(){
         player = new Player(WIDTH/2 - 24, 400, ID.Player);
         Window my_window = new Window(WIDTH, HEIGHT, "Frogger", this, player);
@@ -235,97 +238,102 @@ public class Game extends Canvas implements Runnable{
         double delta = 0;
         timer = System.currentTimeMillis();
         frames = 0;
-        while (running){
-            if (player.getMovement()){
-                if (player.degrees == 270){
-                    player.setX(player.getX() - 1);
-                }
-                else if (player.degrees == 90){
-                    player.setX(player.getX() + 1);
-                }
-                if (player.moves_remaining == my_height){
-                    first_clip.stop();
-                    play_music("frogger/Audio/hop.wav");
+        TimerTask task = null;
+        task = new TimerTask() {
+            @Override
+            public void run() {
+                if (player.getMovement()){
+                    if (player.degrees == 270){
+                        player.setX(player.getX() - 1);
+                    }
+                    else if (player.degrees == 90){
+                        player.setX(player.getX() + 1);
+                    }
+                    if (player.moves_remaining == my_height){
+                        first_clip.stop();
+                        play_music("frogger/Audio/hop.wav");
+                    }
+                    for (GameObject i: handler.object){
+                        if (i.getID() == ID.Road || i.getID() == ID.Grass){
+                            if (player.degrees == 0){
+                                i.setY(i.getY() + 1);
+                                for (GameObject j: i.car_array){
+                                    j.setY(i.getY() + car_space);
+                                }
+                                i.how_many_moves -= 1;
+                                // times_moved++;
+                            } 
+                        }
+                    }
+                    player.moves_remaining -= 1;
+                    if (player.moves_remaining == 0){
+                        if (player.degrees == 0){
+                            my_score += 1;
+                        }
+                        // System.out.println(times_moved);
+                        times_moved = 0;
+                        player.setMovement(false);
+                        player.moves_remaining = my_height;
+                    }
                 }
                 for (GameObject i: handler.object){
                     if (i.getID() == ID.Road || i.getID() == ID.Grass){
-                        if (player.degrees == 0){
-                            i.setY(i.getY() + 1);
-                            for (GameObject j: i.car_array){
-                                j.setY(i.getY() + car_space);
+                        for (GameObject j: i.car_array){
+                            if (has_collided(player, j) && player.dead == false){
+                                player.setMovement(false);
+                                player.inputImage = death_image;
+                                player.dead = true;
+                                play_music("frogger/Audio/squashed.wav");
                             }
-                            i.how_many_moves -= 1;
-                            // times_moved++;
-                        } 
-                    }
-                }
-                player.moves_remaining -= 1;
-                if (player.moves_remaining == 0){
-                    if (player.degrees == 0){
-                        my_score += 1;
-                    }
-                    // System.out.println(times_moved);
-                    times_moved = 0;
-                    player.setMovement(false);
-                    player.moves_remaining = my_height;
-                }
-            }
-            for (GameObject i: handler.object){
-                if (i.getID() == ID.Road || i.getID() == ID.Grass){
-                    for (GameObject j: i.car_array){
-                        if (has_collided(player, j) && player.dead == false){
-                            player.setMovement(false);
-                            player.inputImage = death_image;
-                            player.dead = true;
-                            play_music("frogger/Audio/squashed.wav");
-                        }
-                        if (j.degrees == 90){
-                            if (j.getX() > WIDTH){
-                                j.setX(-132);
+                            if (j.degrees == 90){
+                                if (j.getX() > WIDTH){
+                                    j.setX(-132);
+                                }
+                                else {
+                                    j.setX(j.getX() + speed);
+                                }
                             }
                             else {
-                                j.setX(j.getX() + speed);
-                            }
+                                if (j.getX() < -132){
+                                    j.setX(HEIGHT + 132 * 2);
+                                }
+                                else {
+                                    j.setX(j.getX() - speed);
+                                }
+                            }  
                         }
-                        else {
-                            if (j.getX() < -132){
-                                j.setX(HEIGHT + 132 * 2);
-                            }
-                            else {
-                                j.setX(j.getX() - speed);
-                            }
-                        }  
+                        
                     }
-                    
                 }
-            }
-            if (r.nextInt(3) == 0){
-                turn_to_grass = true;
-            }
-            for (int i = 0; i < handler.object.size(); i++){
-                if (handler.object.get(i).getID() == ID.Road || handler.object.get(i).getID() == ID.Grass){
-                    check_move_up(handler.object.get(i));
+                if (r.nextInt(3) == 0){
+                    turn_to_grass = true;
                 }
+                for (int i = 0; i < handler.object.size(); i++){
+                    if (handler.object.get(i).getID() == ID.Road || handler.object.get(i).getID() == ID.Grass){
+                        check_move_up(handler.object.get(i));
+                    }
+                }
+                for (GameObject i: reordered_grass){
+                    handler.removeObject(i);
+                    handler.object.add(35, i);
+                }
+                reordered_grass.clear();
+                turn_to_grass = false;
+                amount_of_times_moved = 0;
+                // long now = System.nanoTime();
+                // delta += (now - lastTime) / ns;
+                // lastTime = now;
+                // while (delta >= 1){
+                //     tick();
+                //     delta --;
+                // }
+                if (running){
+                    render();
+                }
+                frames++;
             }
-            for (GameObject i: reordered_grass){
-                handler.removeObject(i);
-                handler.object.add(35, i);
-            }
-            reordered_grass.clear();
-            turn_to_grass = false;
-            amount_of_times_moved = 0;
-            long now = System.nanoTime();
-            delta += (now - lastTime) / ns;
-            lastTime = now;
-            while (delta >= 1){
-                tick();
-                delta --;
-            }
-            if (running){
-                render();
-            }
-            frames++;
-        }
+        };
+        my_timer.scheduleAtFixedRate(task, 0, 3);
         stop();
     }
 
@@ -335,6 +343,9 @@ public class Game extends Canvas implements Runnable{
 
     private void render(){
         BufferStrategy bs = this.getBufferStrategy();
+        if (!running){
+            task.cancel();
+        }
         if (bs == null){
             this.createBufferStrategy(3);
             return;
