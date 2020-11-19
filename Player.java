@@ -6,6 +6,7 @@ public class Player extends GameObject{
     protected int moves_remaining = max_int;
     protected boolean dead = false;
     protected int number_to_divide = max_int/6;
+    protected long cooldown = System.currentTimeMillis() - 1000;
     public Player(int x, int y, ID id){
         super(x, y, id, 0);
     }
@@ -22,6 +23,9 @@ public class Player extends GameObject{
                 else if (this.degrees == 90){
                     this.inputImage = this.right_image_array[this.moves_remaining/number_to_divide];
                 }
+            }
+            if (this.moves_remaining == 1){
+                this.cooldown = System.currentTimeMillis();
             }
         }
         g.drawImage(inputImage, x, y, null);

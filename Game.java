@@ -44,6 +44,7 @@ public class Game extends Canvas implements Runnable{
     public int amount_of_times_moved = 0;
     public Timer my_timer = new Timer();
     public TimerTask task = null;
+    public long start_time = System.currentTimeMillis();
     public Game(){
         player = new Player(WIDTH/2 - 24, 400, ID.Player);
         Window my_window = new Window(WIDTH, HEIGHT, "Frogger", this, player);
@@ -320,15 +321,10 @@ public class Game extends Canvas implements Runnable{
                 reordered_grass.clear();
                 turn_to_grass = false;
                 amount_of_times_moved = 0;
-                // long now = System.nanoTime();
-                // delta += (now - lastTime) / ns;
-                // lastTime = now;
-                // while (delta >= 1){
-                //     tick();
-                //     delta --;
-                // }
                 if (running){
-                    render();
+                    if (System.currentTimeMillis() >= start_time + 400){
+                        render();
+                    }
                 }
                 frames++;
             }
