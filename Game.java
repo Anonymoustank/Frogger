@@ -59,12 +59,12 @@ public class Game extends Canvas implements Runnable{
             rightcar_image0 = ImageIO.read(new File("frogger/Images/right0.png"));
             rightcar_image1 = ImageIO.read(new File("frogger/Images/right1.png"));
             rightcar_image2 = ImageIO.read(new File("frogger/Images/right2.png"));
-            car_image = rightcar_image0;
             leftcar_image0 = ImageIO.read(new File("frogger/Images/left0.png"));
             leftcar_image1 = ImageIO.read(new File("frogger/Images/left1.png"));
             leftcar_image2 = ImageIO.read(new File("frogger/Images/left2.png"));
             rightcars = new ArrayList<BufferedImage>(Arrays.asList(rightcar_image0, rightcar_image1, rightcar_image2));
             leftcars = new ArrayList<BufferedImage>(Arrays.asList(leftcar_image0, leftcar_image1, leftcar_image2));
+            car_image = rightcar_image0;
         }
         catch (Exception e){
             e.printStackTrace();
@@ -142,11 +142,11 @@ public class Game extends Canvas implements Runnable{
         running = true; 
         first_clip = play_music("frogger/Audio/start.wav");
     }
-    public void dead(){
+    public void dead(String path){
         player.setMovement(false);
         player.inputImage = death_image;
         player.dead = true;
-        play_music("frogger/Audio/squashed.wav");
+        play_music(path);
     }
     public synchronized void stop(){
         try {
@@ -325,9 +325,9 @@ public class Game extends Canvas implements Runnable{
                 for (GameObject i: handler.object){
                     if (i.getID() == ID.Road || i.getID() == ID.Grass || i.getID() == ID.River){
                         for (GameObject j: i.car_array){
-                            // if (has_collided(player, j) && player.dead == false && j.getID() != ID.Log){
-                            //     dead();
-                            // }
+                            if (has_collided(player, j) && player.dead == false && j.getID() != ID.Log){
+                                dead("frogger/Audio/squashed.wav");
+                            }
                             if (j.degrees == 90){
                                 if (j.getX() > WIDTH){
                                     j.setX(-132);
@@ -350,7 +350,7 @@ public class Game extends Canvas implements Runnable{
                     else if (i.getID() == ID.Player){
                         if (player.getX() > WIDTH + player.max_int || player.getX() < 0 - player.max_int){
                             if (!player.dead){
-                                dead();
+                                dead("frogger/Audio/water.wav");
                             } 
                         }
                         else if (player.on_log && !player.getMovement() && has_collided(player, player.log_being_touched)){
@@ -378,7 +378,7 @@ public class Game extends Canvas implements Runnable{
                     }
                 }
                 if (player.on_water && !player.getMovement() && has_collided(player, player.river_being_touched)){
-                    dead();
+                    dead("frogger/Audio/water.wav");
                     player.on_water = false;
                 }
                 player.on_log = false;
