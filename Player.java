@@ -7,6 +7,11 @@ public class Player extends GameObject{
     protected boolean dead = false;
     protected int number_to_divide = max_int/6;
     protected long cooldown = System.currentTimeMillis() - 1000;
+    protected boolean on_water = false;
+    protected boolean on_log = false;
+    protected int side_move = 1;
+    protected GameObject river_being_touched;
+    protected GameObject log_being_touched;
     public Player(int x, int y, ID id){
         super(x, y, id, 0);
     }

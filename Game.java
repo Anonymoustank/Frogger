@@ -25,7 +25,7 @@ public class Game extends Canvas implements Runnable{
     public Player player;
     private Handler handler;
     public int min_threshold = my_height * 7;
-    public BufferedImage image, rightcar_image0, leftcar_image0, rightcar_image1, rightcar_image2, leftcar_image1, leftcar_image2, death_image, grass_image, car_image;
+    public BufferedImage image, rightcar_image0, leftcar_image0, rightcar_image1, rightcar_image2, leftcar_image1, leftcar_image2, death_image, grass_image, car_image, river_image, log_image1;
     public Clip first_clip;
     public AudioInputStream audioInput;
     public int car_space = 15;
@@ -39,8 +39,9 @@ public class Game extends Canvas implements Runnable{
     public int display_fps = 0;
     public long timer;
     public boolean turn_to_grass = false;
+    public boolean turn_to_river = false;
     public ArrayList<BufferedImage> rightcars, leftcars;
-    public ArrayList<GameObject> reordered_grass = new ArrayList<GameObject>();
+    public ArrayList<GameObject> reordered_items = new ArrayList<GameObject>();
     public int amount_of_times_moved = 0;
     public Timer my_timer = new Timer();
     public TimerTask task = null;
@@ -51,7 +52,9 @@ public class Game extends Canvas implements Runnable{
         handler = new Handler();
         try {
             grass_image = ImageIO.read(new File("frogger/Images/Grass.png"));
+            log_image1 = ImageIO.read(new File("frogger/Images/Road1.png"));
             image = ImageIO.read(new File("frogger/Images/Road.png"));
+            river_image = ImageIO.read(new File("frogger/Images/River.png"));
             death_image = ImageIO.read(new File("frogger/Images/death.png"));
             rightcar_image0 = ImageIO.read(new File("frogger/Images/right0.png"));
             rightcar_image1 = ImageIO.read(new File("frogger/Images/right1.png"));
@@ -139,6 +142,12 @@ public class Game extends Canvas implements Runnable{
         running = true; 
         first_clip = play_music("frogger/Audio/start.wav");
     }
+    public void dead(){
+        player.setMovement(false);
+        player.inputImage = death_image;
+        player.dead = true;
+        play_music("frogger/Audio/squashed.wav");
+    }
     public synchronized void stop(){
         try {
             thread.join();
@@ -183,19 +192,37 @@ public class Game extends Canvas implements Runnable{
     public void check_move_up(GameObject i){
         if (i.getY() >= min_threshold && i.how_many_moves <= 0){
             i.how_many_moves = min_threshold;
-            int random_num = r.nextInt((HEIGHT + 132) + 1) - 132;
+            int random_num = r.nextInt((WIDTH + 132) + 1) - 132;
             if (i.getID() == ID.Road){
                 i.setY(0 - my_height);
                 if (my_score % 16 == 0 && turn_to_grass){
                     i.setID(ID.Grass);
                     i.inputImage = grass_image;
-                    reordered_grass.add(i);
+                    reordered_items.add(0, i);
                     for (int j = 0; j < i.car_array.size(); j++){
                         handler.removeObject(i.car_array.get(j));
                         i.car_array.remove(i.car_array.get(j));
                     }
                 }
-                else {
+                else if (turn_to_river && i.getID() != ID.River){
+                    i.setID(ID.River);
+                    i.inputImage = river_image;
+                    reordered_items.add(i);
+                    for (int j = 0; j < i.car_array.size(); j++){
+                        handler.removeObject(i.car_array.get(j));
+                        i.car_array.remove(i.car_array.get(j));
+                    }
+                    if (i.getX() == 0){
+                        for (int j = 0; j < 2; j++){
+                            GameObject log = new GameObject(random_num + (r.nextInt((500 - 300) + 1) + 300) * j, i.getY() + car_space, ID.Log, 0);
+                            log.inputImage = log_image1;
+                            log.degrees = i.degrees;
+                            handler.addObject(log);
+                            i.car_array.add(log);
+                        }
+                    } 
+                }
+                else{
                     for (GameObject j: i.car_array){
                         j.degrees = i.degrees;
                         if (j.degrees == 90){
@@ -208,6 +235,24 @@ public class Game extends Canvas implements Runnable{
                         j.setX(random_num);
                     }
                 }      
+            }
+            else if (i.getID() == ID.River){
+                i.setY(0 - my_height);
+                i.setID(ID.Road);
+                i.car_array.clear();
+                if (i.getX() == 0){
+                    GameObject car = new GameObject(random_num, i.getY() + car_space, ID.Car, 0);
+                    i.car_array.add(car);
+                    handler.addObject(car);
+                    if (i.degrees == 90){
+                        car.inputImage = rightcars.get(r.nextInt(rightcars.size()));
+                    }
+                    else {
+                        car.inputImage = leftcars.get(r.nextInt(leftcars.size()));
+                    }
+                    car.degrees = i.degrees;
+                }
+                i.inputImage = image;
             }
             else if (i.getID() == ID.Grass){
                 i.setY(0 - my_height);
@@ -255,7 +300,7 @@ public class Game extends Canvas implements Runnable{
                         play_music("frogger/Audio/hop.wav");
                     }
                     for (GameObject i: handler.object){
-                        if (i.getID() == ID.Road || i.getID() == ID.Grass){
+                        if (i.getID() == ID.Road || i.getID() == ID.Grass || i.getID() == ID.River){
                             if (player.degrees == 0){
                                 i.setY(i.getY() + 1);
                                 for (GameObject j: i.car_array){
@@ -278,14 +323,11 @@ public class Game extends Canvas implements Runnable{
                     }
                 }
                 for (GameObject i: handler.object){
-                    if (i.getID() == ID.Road || i.getID() == ID.Grass){
+                    if (i.getID() == ID.Road || i.getID() == ID.Grass || i.getID() == ID.River){
                         for (GameObject j: i.car_array){
-                            if (has_collided(player, j) && player.dead == false){
-                                player.setMovement(false);
-                                player.inputImage = death_image;
-                                player.dead = true;
-                                play_music("frogger/Audio/squashed.wav");
-                            }
+                            // if (has_collided(player, j) && player.dead == false && j.getID() != ID.Log){
+                            //     dead();
+                            // }
                             if (j.degrees == 90){
                                 if (j.getX() > WIDTH){
                                     j.setX(-132);
@@ -305,21 +347,61 @@ public class Game extends Canvas implements Runnable{
                         }
                         
                     }
+                    else if (i.getID() == ID.Player){
+                        if (player.getX() > WIDTH + player.max_int || player.getX() < 0 - player.max_int){
+                            if (!player.dead){
+                                dead();
+                            } 
+                        }
+                        else if (player.on_log && !player.getMovement() && has_collided(player, player.log_being_touched)){
+                            player.setX(player.getX() + player.side_move);
+                        }
+                    }
+                    if (i.getID() == ID.River){
+                        if (has_collided(player, i) && player.dead == false && player.on_log == false){
+                            player.on_water = true;
+                            player.river_being_touched = i;
+                        }
+                    }
+                    else if (i.getID() == ID.Log){
+                        if (has_collided(player, i) && player.dead == false){
+                            player.log_being_touched = i;
+                            player.on_log = true;
+                            player.on_water = false;
+                            if (i.degrees == 90){
+                                player.side_move = 1;
+                            }
+                            else if (i.degrees == 270){
+                                player.side_move = -1;
+                            }
+                        }
+                    }
                 }
+                if (player.on_water && !player.getMovement() && has_collided(player, player.river_being_touched)){
+                    dead();
+                    player.on_water = false;
+                }
+                player.on_log = false;
                 if (r.nextInt(3) == 0){
                     turn_to_grass = true;
                 }
+                if (r.nextInt(3) == 0){
+                    turn_to_river = true;
+                }
                 for (int i = 0; i < handler.object.size(); i++){
-                    if (handler.object.get(i).getID() == ID.Road || handler.object.get(i).getID() == ID.Grass){
+                    if (handler.object.get(i).getID() == ID.Road || handler.object.get(i).getID() == ID.Grass || handler.object.get(i).getID() == ID.River){
                         check_move_up(handler.object.get(i));
                     }
                 }
-                for (GameObject i: reordered_grass){
+                for (GameObject i: reordered_items){
                     handler.removeObject(i);
-                    handler.object.add(35, i);
+                    handler.object.add(handler.object.size() - 1, i);
                 }
-                reordered_grass.clear();
+                handler.removeObject(player);
+                handler.addObject(player);
+                reordered_items.clear();
                 turn_to_grass = false;
+                turn_to_river = false;
                 amount_of_times_moved = 0;
                 if (running){
                     if (System.currentTimeMillis() >= start_time + 400){
@@ -329,7 +411,7 @@ public class Game extends Canvas implements Runnable{
                 frames++;
             }
         };
-        my_timer.scheduleAtFixedRate(task, 0, 3);
+        my_timer.scheduleAtFixedRate(task, 400, 3);
         stop();
     }
 

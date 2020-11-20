@@ -4,5 +4,6 @@ public enum ID{
     Road(),
     River(),
     Car(),
-    Grass();
+    Grass(),
+    Log();
 }
