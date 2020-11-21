@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.awt.Font;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.awt.Rectangle;
 
 public class Game extends Canvas implements Runnable{
     public static int WIDTH = 720;
@@ -32,7 +33,7 @@ public class Game extends Canvas implements Runnable{
     public Random r = new Random();
     public int min = 0;
     public int max = 350;
-    public int speed = 1;
+    public int speed = 2;
     public int my_score = 0;
     public int times_moved = 0;
     public int frames = 0;
@@ -45,7 +46,7 @@ public class Game extends Canvas implements Runnable{
     public int amount_of_times_moved = 0;
     public Timer my_timer = new Timer();
     public TimerTask task = null;
-    public long start_time = System.currentTimeMillis();
+    public long start_time;
     public Game(){
         player = new Player(WIDTH/2 - 24, 400, ID.Player);
         Window my_window = new Window(WIDTH, HEIGHT, "Frogger", this, player);
@@ -143,10 +144,12 @@ public class Game extends Canvas implements Runnable{
         first_clip = play_music("frogger/Audio/start.wav");
     }
     public void dead(String path){
-        player.setMovement(false);
-        player.inputImage = death_image;
-        player.dead = true;
-        play_music(path);
+        if (player.dead == false){
+            player.setMovement(false);
+            player.inputImage = death_image;
+            player.dead = true;
+            play_music(path);
+        }
     }
     public synchronized void stop(){
         try {
@@ -158,22 +161,10 @@ public class Game extends Canvas implements Runnable{
         }
     }
     public boolean has_collided(GameObject object1, GameObject object2){
-        int x1 = object1.getX();
-        int y1 = object1.getY();
-        int width1 = object1.inputImage.getWidth();
-        int height1 = object1.inputImage.getHeight();
-
-        int x2 = object2.getX();
-        int y2 = object2.getY();
-        int width2 = object2.inputImage.getWidth();
-        int height2 = object2.inputImage.getHeight(); 
-        
-        if(x1 < x2 + width2 && x1 + width1 > x2 && y1 < y2 + height2 && y1 + height1 > y2){ 
-            return true;
-        }
-        else {
+        if (object1 == null || object2 == null){
             return false;
         }
+        return new Rectangle(object1.getX(), object1.getY(), object1.inputImage.getWidth(), object1.inputImage.getHeight()).intersects(new Rectangle(object2.getX(), object2.getY(), object2.inputImage.getWidth(), object2.inputImage.getHeight()));
     }
     public Clip play_music(String filepath){
         Clip clip = null;
@@ -213,8 +204,8 @@ public class Game extends Canvas implements Runnable{
                         i.car_array.remove(i.car_array.get(j));
                     }
                     if (i.getX() == 0){
-                        for (int j = 0; j < 2; j++){
-                            GameObject log = new GameObject(random_num + (r.nextInt((500 - 300) + 1) + 300) * j, i.getY() + car_space, ID.Log, 0);
+                        for (int j = 0; j < 1; j++){
+                            GameObject log = new GameObject(random_num + (r.nextInt((400 - 300) + 1) + 300) * j, i.getY() + car_space, ID.Log, 0);
                             log.inputImage = log_image1;
                             log.degrees = i.degrees;
                             handler.addObject(log);
@@ -278,10 +269,6 @@ public class Game extends Canvas implements Runnable{
         }
     }
     public void run(){
-        long lastTime = System.nanoTime();
-        double amountOfTicks = 60.0;
-        double ns = 1000000000 / amountOfTicks;
-        double delta = 0;
         timer = System.currentTimeMillis();
         frames = 0;
         TimerTask task = null;
@@ -290,10 +277,10 @@ public class Game extends Canvas implements Runnable{
             public void run() {
                 if (player.getMovement()){
                     if (player.degrees == 270){
-                        player.setX(player.getX() - 1);
+                        player.setX(player.getX() - speed);
                     }
                     else if (player.degrees == 90){
-                        player.setX(player.getX() + 1);
+                        player.setX(player.getX() + speed);
                     }
                     if (player.moves_remaining == my_height){
                         first_clip.stop();
@@ -302,16 +289,16 @@ public class Game extends Canvas implements Runnable{
                     for (GameObject i: handler.object){
                         if (i.getID() == ID.Road || i.getID() == ID.Grass || i.getID() == ID.River){
                             if (player.degrees == 0){
-                                i.setY(i.getY() + 1);
+                                i.setY(i.getY() + speed);
                                 for (GameObject j: i.car_array){
                                     j.setY(i.getY() + car_space);
                                 }
-                                i.how_many_moves -= 1;
+                                i.how_many_moves -= speed;
                                 // times_moved++;
                             } 
                         }
                     }
-                    player.moves_remaining -= 1;
+                    player.moves_remaining -= speed;
                     if (player.moves_remaining == 0){
                         if (player.degrees == 0){
                             my_score += 1;
@@ -363,23 +350,47 @@ public class Game extends Canvas implements Runnable{
                             player.river_being_touched = i;
                         }
                     }
-                    else if (i.getID() == ID.Log){
+                    if (i.getID() == ID.Log){
                         if (has_collided(player, i) && player.dead == false){
                             player.log_being_touched = i;
                             player.on_log = true;
                             player.on_water = false;
                             if (i.degrees == 90){
-                                player.side_move = 1;
+                                player.side_move = speed;
                             }
                             else if (i.degrees == 270){
-                                player.side_move = -1;
+                                player.side_move = -1 * speed;
                             }
+                        }
+                        else if (i == player.log_being_touched && player.dead == false){
+                            player.on_water = true;
+                            player.on_log = false;
                         }
                     }
                 }
-                if (player.on_water && !player.getMovement() && has_collided(player, player.river_being_touched)){
-                    dead("frogger/Audio/water.wav");
-                    player.on_water = false;
+                if (player.river_being_touched != null){
+                    int y1 = player.getY();
+                    int y2 = player.river_being_touched.getY();
+                    int height2 = player.river_being_touched.inputImage.getHeight();
+                    int height1 = player.inputImage.getHeight();
+                    try {
+                        if (player.dead == false){
+                            if (!has_collided(player, player.log_being_touched) && !player.getMovement() && y1 < y2 + height2 && y1 + height1 > y2){
+                                dead("frogger/Audio/water.wav");
+                                player.on_water = false;
+                            }
+                            else if (y1 < y2 + height2 && y1 + height1 > y2 == false){
+                                player.river_being_touched = null;
+                            }
+                        }
+                    }
+                    catch (Exception e){
+
+                    }
+                    // if (player.on_water && !player.getMovement() && y1 < y2 + height2 && y1 + height1 > y2){
+                    //     dead("frogger/Audio/water.wav");
+                    //     player.on_water = false;
+                    // }
                 }
                 player.on_log = false;
                 if (r.nextInt(3) == 0){
@@ -404,14 +415,15 @@ public class Game extends Canvas implements Runnable{
                 turn_to_river = false;
                 amount_of_times_moved = 0;
                 if (running){
-                    if (System.currentTimeMillis() >= start_time + 400){
+                    if (System.currentTimeMillis() >= start_time + 800){
                         render();
                     }
                 }
                 frames++;
             }
         };
-        my_timer.scheduleAtFixedRate(task, 400, 3);
+        start_time = System.currentTimeMillis();
+        my_timer.scheduleAtFixedRate(task, 250, 8);
         stop();
     }
 
