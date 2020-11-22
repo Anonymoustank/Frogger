@@ -12,6 +12,7 @@ public class Player extends GameObject{
     protected int side_move = 1;
     protected GameObject river_being_touched;
     protected GameObject log_being_touched;
+    protected boolean has_started = false;
     public Player(int x, int y, ID id){
         super(x, y, id, 0);
     }

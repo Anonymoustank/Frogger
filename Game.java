@@ -149,6 +149,7 @@ public class Game extends Canvas implements Runnable{
             player.inputImage = death_image;
             player.dead = true;
             play_music(path);
+            start_time = System.currentTimeMillis();
         }
     }
     public synchronized void stop(){
@@ -272,9 +273,9 @@ public class Game extends Canvas implements Runnable{
         timer = System.currentTimeMillis();
         frames = 0;
         TimerTask task = null;
-        task = new TimerTask() {
+        task = new TimerTask(){
             @Override
-            public void run() {
+            public void run(){
                 if (player.getMovement()){
                     if (player.degrees == 270){
                         player.setX(player.getX() - speed);
@@ -387,10 +388,6 @@ public class Game extends Canvas implements Runnable{
                     catch (Exception e){
 
                     }
-                    // if (player.on_water && !player.getMovement() && y1 < y2 + height2 && y1 + height1 > y2){
-                    //     dead("frogger/Audio/water.wav");
-                    //     player.on_water = false;
-                    // }
                 }
                 player.on_log = false;
                 if (r.nextInt(3) == 0){
@@ -415,15 +412,13 @@ public class Game extends Canvas implements Runnable{
                 turn_to_river = false;
                 amount_of_times_moved = 0;
                 if (running){
-                    if (System.currentTimeMillis() >= start_time + 800){
-                        render();
-                    }
+                    render();
                 }
                 frames++;
             }
         };
         start_time = System.currentTimeMillis();
-        my_timer.scheduleAtFixedRate(task, 250, 8);
+        my_timer.scheduleAtFixedRate(task, 0, 8);
         stop();
     }
 
@@ -442,19 +437,37 @@ public class Game extends Canvas implements Runnable{
         }
         Graphics g = bs.getDrawGraphics();
         g.setColor(Color.black);
-        g.fillRect(0, 0, WIDTH, HEIGHT);
-        handler.render(g);
         int fontSize = 25;
         g.setFont(new Font("TimesRoman", Font.BOLD, fontSize));
-        g.setColor(Color.red);
-        g.drawString("Score: " + my_score, WIDTH - 125, 450);
-        if (System.currentTimeMillis() - timer > 1000){
-            timer += 1000;
-            display_fps = frames;
-            frames = 0;
+        g.fillRect(0, 0, WIDTH, HEIGHT);
+        if (player.dead && System.currentTimeMillis() - start_time > 1000){
+            g.setColor(Color.white);
+            fontSize = 50;
+            g.setFont(new Font("TimesRoman", Font.BOLD, fontSize));
+            g.drawString("Final Score: " + my_score, 225, HEIGHT / 2);
+            g.drawString("YOU DIED", 250, 150);
         }
-        if (display_fps != 0){
-            g.drawString("FPS: " + display_fps, 0, 450);
+        else if (System.currentTimeMillis() - start_time > 2250 || player.dead){
+            player.has_started = true;
+            handler.render(g);
+            g.setColor(Color.red);
+            g.drawString("Score: " + my_score, WIDTH - 125, 450);
+            if (System.currentTimeMillis() - timer > 1000){
+                timer += 1000;
+                display_fps = frames;
+                frames = 0;
+            }
+            if (display_fps != 0){
+                g.drawString("FPS: " + display_fps, 0, 450);
+            }
+        }
+        else {
+            g.setColor(Color.green);
+            fontSize = 50;
+            g.setFont(new Font("TimesRoman", Font.BOLD, fontSize));
+            g.drawString("Frogger!", 260, HEIGHT / 2);
+            g.setColor(Color.white);
+            g.drawString("By Pranav Kadekodi", 125, HEIGHT / 2 + 100);
         }
         g.dispose();
         bs.show();
