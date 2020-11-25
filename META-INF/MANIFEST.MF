@@ -1,3 +1,0 @@
-Main-Class: frogger/Game
-Manifest-Version: 1.0
-Created-By: Pranav Kadekodi
