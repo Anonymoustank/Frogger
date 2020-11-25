@@ -52,17 +52,17 @@ public class Game extends Canvas implements Runnable{
         Window my_window = new Window(WIDTH, HEIGHT, "Frogger", this, player);
         handler = new Handler();
         try {
-            grass_image = ImageIO.read(Game.class.getResourceAsStream("Images/grass.png"));
-            log_image1 = ImageIO.read(Game.class.getResourceAsStream("Images/Road1.png"));
-            image = ImageIO.read(Game.class.getResourceAsStream("Images/Road.png"));
-            river_image = ImageIO.read(Game.class.getResourceAsStream("Images/River.png"));
-            death_image = ImageIO.read(Game.class.getResourceAsStream("Images/death.png"));
-            rightcar_image0 = ImageIO.read(Game.class.getResourceAsStream("Images/right0.png"));
-            rightcar_image1 = ImageIO.read(Game.class.getResourceAsStream("Images/right1.png"));
-            rightcar_image2 = ImageIO.read(Game.class.getResourceAsStream("Images/right2.png"));
-            leftcar_image0 = ImageIO.read(Game.class.getResourceAsStream("Images/left0.png"));
-            leftcar_image1 = ImageIO.read(Game.class.getResourceAsStream("Images/left1.png"));
-            leftcar_image2 = ImageIO.read(Game.class.getResourceAsStream("Images/left2.png"));
+            grass_image = ImageIO.read(new File("frogger/Images/grass.png"));
+            log_image1 = ImageIO.read(new File("frogger/Images/Road1.png"));
+            image = ImageIO.read(new File("frogger/Images/Road.png"));
+            river_image = ImageIO.read(new File("frogger/Images/River.png"));
+            death_image = ImageIO.read(new File("frogger/Images/death.png"));
+            rightcar_image0 = ImageIO.read(new File("frogger/Images/right0.png"));
+            rightcar_image1 = ImageIO.read(new File("frogger/Images/right1.png"));
+            rightcar_image2 = ImageIO.read(new File("frogger/Images/right2.png"));
+            leftcar_image0 = ImageIO.read(new File("frogger/Images/left0.png"));
+            leftcar_image1 = ImageIO.read(new File("frogger/Images/left1.png"));
+            leftcar_image2 = ImageIO.read(new File("frogger/Images/left2.png"));
             rightcars = new ArrayList<BufferedImage>(Arrays.asList(rightcar_image0, rightcar_image1, rightcar_image2));
             leftcars = new ArrayList<BufferedImage>(Arrays.asList(leftcar_image0, leftcar_image1, leftcar_image2));
             car_image = rightcar_image0;
@@ -124,9 +124,9 @@ public class Game extends Canvas implements Runnable{
             else if (i.getID() == ID.Player) {
                 for (int j = 1; j < 8; j++){
                     try {
-                        player.image_array[j - 1] = ImageIO.read(Game.class.getResourceAsStream("Images/frog" + Integer.toString(j) + ".png"));
-                        player.left_image_array[j - 1] = ImageIO.read(Game.class.getResourceAsStream("Images/left_frog" + Integer.toString(j) + ".png"));
-                        player.right_image_array[j - 1] = ImageIO.read(Game.class.getResourceAsStream("Images/right_frog" + Integer.toString(j) + ".png"));
+                        player.image_array[j - 1] = ImageIO.read(new File("frogger/Images/frog" + Integer.toString(j) + ".png"));
+                        player.left_image_array[j - 1] = ImageIO.read(new File("frogger/Images/left_frog" + Integer.toString(j) + ".png"));
+                        player.right_image_array[j - 1] = ImageIO.read(new File("frogger/Images/right_frog" + Integer.toString(j) + ".png"));
                     }
                     catch (Exception e){
                         e.printStackTrace();
