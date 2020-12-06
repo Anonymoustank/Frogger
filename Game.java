@@ -277,9 +277,6 @@ public class Game extends Canvas implements Runnable{
         }
     }
     public void run(){
-        timer = System.currentTimeMillis();
-        frames = 0;
-        TimerTask task = null;
         task = new TimerTask(){
             @Override
             public void run(){
@@ -301,7 +298,6 @@ public class Game extends Canvas implements Runnable{
                                     j.setY(i.getY() + car_space);
                                 }
                                 i.how_many_moves -= speed;
-                                // times_moved++;
                             } 
                         }
                     }
@@ -310,7 +306,6 @@ public class Game extends Canvas implements Runnable{
                         if (player.degrees == 0){
                             my_score += 1;
                         }
-                        // System.out.println(times_moved);
                         times_moved = 0;
                         player.setMovement(false);
                         player.moves_remaining = my_height;
@@ -398,7 +393,7 @@ public class Game extends Canvas implements Runnable{
                         }
                     }
                     catch (Exception e){
-
+                        e.printStackTrace();
                     }
                 }
                 player.on_log = false;
@@ -475,6 +470,8 @@ public class Game extends Canvas implements Runnable{
             }
         }
         else {
+            timer = System.currentTimeMillis();
+            frames = 0;
             g.setColor(Color.green);
             fontSize = 50;
             g.setFont(new Font("TimesRoman", Font.BOLD, fontSize));
