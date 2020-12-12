@@ -342,8 +342,10 @@ public class Game extends Canvas implements Runnable{
                                 dead("frogger/Audio/water.wav");
                             } 
                         }
-                        else if (player.on_log && !player.getMovement() && has_collided(player, player.log_being_touched)){
-                            player.setX(player.getX() + player.side_move);
+                        else if (player.on_log && has_collided(player, player.log_being_touched)){
+                            if ((player.degrees == 90 && player.side_move >= 0 && player.degrees == player.log_being_touched.degrees) || (player.degrees == 270 && player.side_move <= 0 && player.degrees == player.log_being_touched.degrees) || (player.degrees == 0 && !player.getMovement())){
+                                player.setX(player.getX() + player.side_move);
+                            }
                         }
                     }
                     if (i.getID() == ID.River){
