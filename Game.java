@@ -20,7 +20,6 @@ import java.awt.FontMetrics;
 import java.awt.geom.Rectangle2D;
 
 public class Game extends Canvas implements Runnable{
-    // public Runtime rt = Runtime.getRuntime();
     public static int WIDTH = 720;
     public static int HEIGHT = 503;
     public static int my_height = 92;
@@ -446,7 +445,6 @@ public class Game extends Canvas implements Runnable{
             return;
         }
         Graphics g = bs.getDrawGraphics();
-        // System.out.println((rt.totalMemory() - rt.freeMemory()) / 1024 / 1024);
         g.setColor(Color.black);
         int fontSize = 25;
         g.setFont(new Font("TimesRoman", Font.BOLD, fontSize));
