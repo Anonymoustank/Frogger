@@ -20,6 +20,7 @@ import java.awt.FontMetrics;
 import java.awt.geom.Rectangle2D;
 
 public class Game extends Canvas implements Runnable{
+    // public Runtime rt = Runtime.getRuntime();
     public static int WIDTH = 720;
     public static int HEIGHT = 503;
     public static int my_height = 92;
@@ -445,6 +446,7 @@ public class Game extends Canvas implements Runnable{
             return;
         }
         Graphics g = bs.getDrawGraphics();
+        // System.out.println((rt.totalMemory() - rt.freeMemory()) / 1024 / 1024);
         g.setColor(Color.black);
         int fontSize = 25;
         g.setFont(new Font("TimesRoman", Font.BOLD, fontSize));
@@ -456,6 +458,7 @@ public class Game extends Canvas implements Runnable{
             drawCenteredString(g, "Final Score: " + my_score, 0, 0, WIDTH, HEIGHT);
             g.setColor(Color.RED);
             drawCenteredString(g, "YOU DIED", 0, 0, WIDTH, (int)(HEIGHT / 2));
+            
         }
         else if (System.currentTimeMillis() - start_time > 2250 || player.dead){
             player.has_started = true;
