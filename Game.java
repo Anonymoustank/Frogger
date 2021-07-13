@@ -6,6 +6,8 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferStrategy;
 import java.io.File;
+import java.io.InputStream;
+import java.io.BufferedInputStream;
 import javax.imageio.ImageIO;
 import javax.sound.sampled.*;
 import java.lang.Math;
@@ -52,17 +54,36 @@ public class Game extends Canvas implements Runnable{
         Window my_window = new Window(WIDTH, HEIGHT, "Frogger", this, player);
         handler = new Handler();
         try {
-            grass_image = ImageIO.read(new File("frogger/Images/grass.png"));
-            log_image1 = ImageIO.read(new File("frogger/Images/Road1.png"));
-            image = ImageIO.read(new File("frogger/Images/Road.png"));
-            river_image = ImageIO.read(new File("frogger/Images/River.png"));
-            death_image = ImageIO.read(new File("frogger/Images/death.png"));
-            rightcar_image0 = ImageIO.read(new File("frogger/Images/right0.png"));
-            rightcar_image1 = ImageIO.read(new File("frogger/Images/right1.png"));
-            rightcar_image2 = ImageIO.read(new File("frogger/Images/right2.png"));
-            leftcar_image0 = ImageIO.read(new File("frogger/Images/left0.png"));
-            leftcar_image1 = ImageIO.read(new File("frogger/Images/left1.png"));
-            leftcar_image2 = ImageIO.read(new File("frogger/Images/left2.png"));
+            // grass_image = ImageIO.read(new File("frogger/Images/grass.png"));
+            grass_image = ImageIO.read(Game.class.getResourceAsStream("Images/Grass.png"));
+            // log_image1 = ImageIO.read(new File("frogger/Images/Road1.png"));
+            log_image1 = ImageIO.read(Game.class.getResourceAsStream("Images/Road1.png"));
+            // image = ImageIO.read(new File("frogger/Images/Road.png"));
+            image = ImageIO.read(Game.class.getResourceAsStream("Images/Road.png"));
+
+            // river_image = ImageIO.read(new File("frogger/Images/River.png"));
+            river_image = ImageIO.read(Game.class.getResourceAsStream("Images/River.png"));
+
+            // death_image = ImageIO.read(new File("frogger/Images/death.png"));
+            death_image = ImageIO.read(Game.class.getResourceAsStream("Images/death.png"));
+
+            // rightcar_image0 = ImageIO.read(new File("frogger/Images/right0.png"));
+            rightcar_image0 = ImageIO.read(Game.class.getResourceAsStream("Images/right0.png"));
+
+            // rightcar_image1 = ImageIO.read(new File("frogger/Images/right1.png"));
+            rightcar_image1 = ImageIO.read(Game.class.getResourceAsStream("Images/right1.png"));
+
+            // rightcar_image2 = ImageIO.read(new File("frogger/Images/right2.png"));
+            rightcar_image2 = ImageIO.read(Game.class.getResourceAsStream("Images/right2.png"));
+
+            // leftcar_image0 = ImageIO.read(new File("frogger/Images/left0.png"));
+            leftcar_image0 = ImageIO.read(Game.class.getResourceAsStream("Images/left0.png"));
+
+            // leftcar_image1 = ImageIO.read(new File("frogger/Images/left1.png"));
+            leftcar_image1 = ImageIO.read(Game.class.getResourceAsStream("Images/left1.png"));
+
+            // leftcar_image2 = ImageIO.read(new File("frogger/Images/left2.png"));
+            leftcar_image2 = ImageIO.read(Game.class.getResourceAsStream("Images/left2.png"));
             rightcars = new ArrayList<BufferedImage>(Arrays.asList(rightcar_image0, rightcar_image1, rightcar_image2));
             leftcars = new ArrayList<BufferedImage>(Arrays.asList(leftcar_image0, leftcar_image1, leftcar_image2));
             car_image = rightcar_image0;
@@ -124,9 +145,12 @@ public class Game extends Canvas implements Runnable{
             else if (i.getID() == ID.Player) {
                 for (int j = 1; j < 8; j++){
                     try {
-                        player.image_array[j - 1] = ImageIO.read(new File("frogger/Images/frog" + Integer.toString(j) + ".png"));
-                        player.left_image_array[j - 1] = ImageIO.read(new File("frogger/Images/left_frog" + Integer.toString(j) + ".png"));
-                        player.right_image_array[j - 1] = ImageIO.read(new File("frogger/Images/right_frog" + Integer.toString(j) + ".png"));
+                        // player.image_array[j - 1] = ImageIO.read(new File("frogger/Images/frog" + Integer.toString(j) + ".png"));
+                        player.image_array[j - 1] = ImageIO.read(Game.class.getResourceAsStream("Images/frog" + Integer.toString(j) + ".png"));
+                        // player.left_image_array[j - 1] = ImageIO.read(new File("frogger/Images/left_frog" + Integer.toString(j) + ".png"));
+                        player.left_image_array[j - 1] = ImageIO.read(Game.class.getResourceAsStream("Images/left_frog" + Integer.toString(j) + ".png"));
+                        // player.right_image_array[j - 1] = ImageIO.read(new File("frogger/Images/right_frog" + Integer.toString(j) + ".png"));
+                        player.right_image_array[j - 1] = ImageIO.read(Game.class.getResourceAsStream("Images/right_frog" + Integer.toString(j) + ".png"));
                     }
                     catch (Exception e){
                         e.printStackTrace();
@@ -151,7 +175,7 @@ public class Game extends Canvas implements Runnable{
         thread = new Thread(this);
         thread.start();
         running = true; 
-        play_music("frogger/Audio/start.wav");
+        play_music("Audio/start.wav");
     }
     public void dead(String path){
         if (player.dead == false){
@@ -179,7 +203,10 @@ public class Game extends Canvas implements Runnable{
     }
     public void play_music(String filepath){
         try {
-            AudioInputStream audioInput = AudioSystem.getAudioInputStream(new File(filepath));
+            // AudioInputStream audioInput = AudioSystem.getAudioInputStream(new File(filepath));
+            InputStream new_audio = Game.class.getResourceAsStream(filepath);
+            InputStream bufferedIn = new BufferedInputStream(new_audio);
+            AudioInputStream audioInput = AudioSystem.getAudioInputStream(bufferedIn);
             Clip clip = AudioSystem.getClip();
             clip.open(audioInput);
             clip.start();
@@ -288,7 +315,8 @@ public class Game extends Canvas implements Runnable{
                         player.setX(player.getX() + speed);
                     }
                     if (player.moves_remaining == my_height){
-                        play_music("frogger/Audio/hop.wav");
+                        // play_music("frogger/Audio/hop.wav");
+                        play_music("Audio/hop.wav");
                     }
                     for (GameObject i: handler.object){
                         if (i.getID() == ID.Road || i.getID() == ID.Grass || i.getID() == ID.River){
@@ -315,7 +343,8 @@ public class Game extends Canvas implements Runnable{
                     if (i.getID() == ID.Road || i.getID() == ID.Grass || i.getID() == ID.River){
                         for (GameObject j: i.car_array){
                             if (has_collided(player, j) && player.dead == false && j.getID() != ID.Log){
-                                dead("frogger/Audio/squashed.wav");
+                                // dead("frogger/Audio/squashed.wav");
+                                dead("Audio/squashed.wav");
                             }
                             if (j.degrees == 90){
                                 if (j.getX() > WIDTH){
@@ -339,7 +368,8 @@ public class Game extends Canvas implements Runnable{
                     else if (i.getID() == ID.Player){
                         if (player.getX() > WIDTH + player.max_int || player.getX() < 0 - player.max_int){
                             if (!player.dead){
-                                dead("frogger/Audio/water.wav");
+                                // dead("frogger/Audio/water.wav");
+                                dead("Audio/water.wav");
                             } 
                         }
                         else if (player.on_log && has_collided(player, player.log_being_touched)){
@@ -386,7 +416,8 @@ public class Game extends Canvas implements Runnable{
                     try {
                         if (player.dead == false){
                             if (!has_collided(player, player.log_being_touched) && !player.getMovement() && y1 < y2 + height2 && y1 + height1 > y2){
-                                dead("frogger/Audio/water.wav");
+                                // dead("frogger/Audio/water.wav");
+                                dead("Audio/water.wav");
                                 player.on_water = false;
                             }
                             else if (y1 < y2 + height2 && y1 + height1 > y2 == false){
